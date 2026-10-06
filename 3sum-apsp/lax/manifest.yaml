@@ -27,3 +27,6 @@ bibEntries:
       note = {Commit e1a4e6508154ea59f030480661590a9fe3018011},
       url = {https://github.com/anthropics/formal-math/tree/e1a4e6508154ea59f030480661590a9fe3018011/3sum-apsp}
     }
+issue:
+  repositoryId: 1320232165
+  number: 183
