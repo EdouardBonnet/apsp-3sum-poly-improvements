@@ -1,0 +1,29 @@
+specVersion: "1"
+id: lax-350013
+leanVersion: "v4.33.0"
+mathlibVersion: "db584cd6d46c92f209a44c0f1c829460d327499d"
+title: "Truly Subquadratic 3SUM and Truly Subcubic APSP"
+authors:
+  - name: "Anthropic, PBC (original formalization)"
+  - name: "Édouard Bonnet (Lax packaging)"
+    github: EdouardBonnet
+bibEntries:
+  - |
+    @misc{AlmanVassilevskaWilliams2026,
+      author = {Alman, Josh and Vassilevska Williams, Virginia},
+      title = {Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse Lopsided Graphs},
+      year = {2026},
+      eprint = {2610.06783},
+      archivePrefix = {arXiv},
+      primaryClass = {cs.DS},
+      url = {https://arxiv.org/abs/2610.06783v1}
+    }
+  - |
+    @misc{AnthropicThreeSumApsp2026,
+      author = {{Anthropic, PBC}},
+      title = {3SUM and APSP: a Lean 4 formalization},
+      year = {2026},
+      howpublished = {GitHub repository, Apache-2.0},
+      note = {Commit e1a4e6508154ea59f030480661590a9fe3018011},
+      url = {https://github.com/anthropics/formal-math/tree/e1a4e6508154ea59f030480661590a9fe3018011/3sum-apsp}
+    }
