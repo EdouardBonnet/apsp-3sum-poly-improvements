@@ -410,6 +410,9 @@ def certificate_body(proof):
                 body = text[a:b].split(':=', 1)[1].strip()
                 for original, assumed in named_assumptions.items():
                     body = re.sub(r'\b' + re.escape(original) + r'\b', lambda _: assumed, body)
+                # The conclusion uses the concept's identical named constant.
+                body = body.replace('[EndStatement.ε_T]',
+                                    f'[EndStatement.ε_T, {C}.ExactTriangle.ε_T]')
                 return body
         raise ValueError(proof)
     return proof

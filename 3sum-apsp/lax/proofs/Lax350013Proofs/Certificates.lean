@@ -26,8 +26,8 @@ conclusion: Lax350013.ExactTriangle.algorithm
 The upstream conversion from the certified real-exponent bound to the rational-exponent formulation, preserving the program and input/output semantics.
 -/
 theorem lax_endStatement_theorem_19 : Lax350013.ExactTriangle.Theorem_19 :=
-  (show Items.Theorem_19 from Lax350013.IntegerAlgorithmBounds.theorem19).rounded.endStatement (by norm_num [EndStatement.ε_T])
-    (by norm_num [EndStatement.ε_T])
+  (show Items.Theorem_19 from Lax350013.IntegerAlgorithmBounds.theorem19).rounded.endStatement (by norm_num [EndStatement.ε_T, Lax350013.ExactTriangle.ε_T])
+    (by norm_num [EndStatement.ε_T, Lax350013.ExactTriangle.ε_T])
 
 /--
 ---
@@ -67,8 +67,8 @@ theorem lax_endStatement_corollary_39_zeroWeight : Lax350013.ZeroWeightClique.Co
   intro k hk
   have hdiv : ((k / 3 : ℕ) : ℚ) ≤ (k : ℚ) := by exact_mod_cast Nat.div_le_self k 3
   have hk0 : (0 : ℚ) ≤ (k : ℚ) := by positivity
-  refine ((show Items.Corollary_39_zero from Lax350013.WeightedCliqueAlgorithms.zeroWeight) k hk).endStatement (by norm_num [EndStatement.ε_T]) ?_
-  norm_num [EndStatement.ε_T]
+  refine ((show Items.Corollary_39_zero from Lax350013.WeightedCliqueAlgorithms.zeroWeight) k hk).endStatement (by norm_num [EndStatement.ε_T, Lax350013.ExactTriangle.ε_T]) ?_
+  norm_num [EndStatement.ε_T, Lax350013.ExactTriangle.ε_T]
   linarith
 
 /--
