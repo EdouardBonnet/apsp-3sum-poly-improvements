@@ -86,8 +86,13 @@ lax submit 3sum-apsp/lax
 Registration is a separate, irreversible archive operation; this packaging
 is intended to be submitted as a replaceable draft for review.
 
-The proof network records actual applications of exposed machine-level
-statements. In particular, the five rational-exponent headline claims depend
+Every use of an exposed machine-level theorem imports and uses its concept
+statement, including uses inside intermediate helper lemmas. The generator
+preserves the theorem's own proof and replaces references to that theorem
+throughout the adapted library with the corresponding concept axiom. Lax
+therefore records these dependencies in the proof network. The proof package
+requires only mathlib and this submission's concepts.
+In particular, the five rational-exponent headline claims depend
 on the more detailed running-time statements. Internal procedure-level
 reductions and compiler correctness remain in the proof library: a theorem
 asserting the existence of a RAM program is not silently substituted for

@@ -13,6 +13,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec4.Corollary31_32
 import Lax350013Proofs.ThreeSumApsp.Sec4.Corollary32
+import Lax350013.MatrixTradeoffs
 
 namespace Lax350013Proofs
 
@@ -52,7 +53,7 @@ theorem Theorem24.with_queries {ε q : ℝ} (hε : ε < epsStar) (hq : 0 < q) :
   obtain ⟨c, θ, hadm, hqθ⟩ := exists_admissible hε hq
   refine ⟨gammaOf c θ, hadm.gamma_pos, fun c₀ => ?_, fun c₀ => ?_⟩
   · exact exists_isDataStructure_of_dominated
-      (wordRam_corollary_31 c θ ε hadm.c_gt hadm.θ_pos hadm.θ_lt hadm.thin c₀) (fun _ hx => hx)
+      ((show Items.Corollary_31 from Lax350013.MatrixTradeoffs.corollary31) c θ ε hadm.c_gt hadm.θ_pos hadm.θ_lt hadm.thin c₀) (fun _ hx => hx)
       (.refl _ _) (.of_le fun x hx => mul_le_mul_of_nonneg_right
         (Real.rpow_le_rpow_of_exponent_le hx.one_le_D hqθ.le) (by positivity))
   · exact exists_solves_of_dominated (Corollary32.from_one hadm c₀)

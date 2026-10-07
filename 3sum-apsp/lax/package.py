@@ -298,6 +298,37 @@ concept('HintedAlgorithms', 'Improved algorithms with thin hints',
 write(ROOT / 'concepts' / (C + '.lean'), ''.join(f'import {C}.{x}\n' for x in sorted(concepts)))
 
 
+named_assumptions = {
+    'wordRam_' + statement[0].lower() + statement[1:]:
+        f'(show Items.{statement} from {C}.{module}.{axiom})'
+    for statement, (module, axiom) in targets.items()
+    if module not in {'ExactTriangle', 'ThreeSUM', 'MinPlusProduct', 'APSP', 'ZeroWeightClique'}
+}
+assumption_modules = {
+    name: re.search(r'from (Lax350013\.\w+)\.', term)[1]
+    for name, term in named_assumptions.items()
+}
+
+
+def concept_dependencies(body):
+    """Use exposed statements at every theorem boundary, including helpers.
+
+    Retain each original theorem's own proof. Replace uses of that theorem
+    by the concept axiom, so downstream certificates record the dependency.
+    Comments and declaration names are preserved verbatim.
+    """
+    masked = mask_comments(body)
+    declared = {m.span(1) for m in re.finditer(
+        r'(?m)^(?:(?:noncomputable|private|protected) )*'
+        r'(?:def|abbrev|theorem|lemma|axiom) (\w+)', masked)}
+    pattern = r'(?<![\w.])(?:ThreeSumApsp\.)?(' + '|'.join(
+        map(re.escape, sorted(named_assumptions, key=len, reverse=True))) + r')(?!\w)'
+    replacements = [m for m in re.finditer(pattern, masked) if m.span(1) not in declared]
+    for match in reversed(replacements):
+        body = body[:match.start()] + named_assumptions[match[1]] + body[match.end():]
+    return body, sorted({assumption_modules[m[1]] for m in replacements})
+
+
 def adapt(text, origin, extra_imports=()):
     # Adapt upstream module visibility; all proof declarations gain namespace P.
     text = text[text.index('-/') + 2:].lstrip()
@@ -327,6 +358,8 @@ def adapt(text, origin, extra_imports=()):
     body = body.replace('_root_.Light', f'_root_.{P}.Light').replace('_root_.ThreeSumApsp', f'_root_.{P}.ThreeSumApsp')
     body = body.replace('S.card_filter_div_eq_le', '(Finset.card_filter_div_eq_le S)')
     body = body.replace('Finset.univ.card_filter_div_eq_le', '(Finset.card_filter_div_eq_le Finset.univ)')
+    body, concept_imports = concept_dependencies(body)
+    imports += ['import ' + mod for mod in concept_imports]
     # Mathlib namespace extensions must retain access to the root namespace.
     for ns in ['Finset', 'Nat', 'Int', 'Real', 'List']:
         body = re.sub(r'(?m)^namespace ' + ns + r'$', 'namespace ' + ns + '\n\nopen _root_.' + ns, body)
@@ -391,16 +424,10 @@ for mod, source in sorted(upstream_files.items()):
     dest.parent.mkdir(parents=True, exist_ok=True)
     write(dest, adapt(source.read_text(), str(rel)))
 
-# Initial certificates use the original proofs. The dependency refinement below is
-# deliberately limited to actual theorem applications, never decorative graph edges.
+# Certificates use the original proofs, whose exposed theorem dependencies now
+# go through concepts throughout the library, including intermediate helpers.
 certificates = []
 proof_sources = {p: p.read_text() for p in (UP / 'ThreeSumApsp').rglob('*.lean')}
-named_assumptions = {
-    'wordRam_' + statement[0].lower() + statement[1:]:
-        f'(show Items.{statement} from {C}.{module}.{axiom})'
-    for statement, (module, axiom) in targets.items()
-    if module not in {'ExactTriangle', 'ThreeSUM', 'MinPlusProduct', 'APSP', 'ZeroWeightClique'}
-}
 
 
 def certificate_body(proof):

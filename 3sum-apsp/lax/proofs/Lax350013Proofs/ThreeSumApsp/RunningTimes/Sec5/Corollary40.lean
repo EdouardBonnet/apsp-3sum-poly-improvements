@@ -14,6 +14,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec5.Corollary40.MvHintedTimes
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec5.Corollary40.UMvHintedTimes
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec5.Corollary40.VHintedTimes
+import Lax350013.HintedAlgorithms
 
 namespace Lax350013Proofs
 
@@ -117,11 +118,11 @@ theorem Corollary40.fail_mono {τ₀ τ₀' : ℝ} (h0 : 0 ≤ τ₀') (hle : τ
 private theorem Corollary40.fail_general : Items.Corollary_40_fail epsStar := by
   obtain ⟨hstar0, hstar1⟩ := sec4_epsStar_numeric
   refine ⟨fun τ ω hpos hlt hω => ?_, fun τ₁ τ₂ ω₂ ω₃ hpos hlt hτ₂ hω₂ hω₃ => ?_⟩
-  · obtain ⟨γ, hγ, hv, hm⟩ := wordRam_corollary_40_general_times.1 τ hpos hlt
+  · obtain ⟨γ, hγ, hv, hm⟩ := (show Items.Corollary_40_general_times from Lax350013.HintedAlgorithms.generalTimes).1 τ hpos hlt
     have hsaving : 0 < γ * τ := by positivity
     exact ⟨not_conjecture52_of_achieves AchievesVHinted.mono (by linarith) (by linarith) hv,
       not_conjecture57_of_achieves AchievesMvHinted.mono (by linarith) (by linarith) hm⟩
-  · obtain ⟨γ, hγ, hu⟩ := wordRam_corollary_40_general_times.2 τ₁ τ₂ hpos hlt hτ₂
+  · obtain ⟨γ, hγ, hu⟩ := (show Items.Corollary_40_general_times from Lax350013.HintedAlgorithms.generalTimes).2 τ₁ τ₂ hpos hlt hτ₂
     have hsaving : 0 < γ * τ₁ := by positivity
     have hτ₂pos : 0 < τ₂ := pos_of_mul_pos_right (hpos.trans hlt) (by linarith)
     have hτ₁ : τ₁ < 1 := by nlinarith
