@@ -13,6 +13,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Theorem19
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec5.Corollary39.MinMaxWeight
+import Lax350013.IntegerAlgorithmBounds
 
 namespace Lax350013Proofs
 
@@ -39,11 +40,11 @@ namespace ThreeSumApsp
 
 /-- **Corollary 39**, the zero-weight case, on the word RAM. -/
 theorem wordRam_corollary_39_zero : Items.Corollary_39_zero :=
-  Light.Sec5.corollary_39_zero_of_theorem_19 Light.Sec3.claim_theorem_19_usingCorollary26
+  Light.Sec5.corollary_39_zero_of_theorem_19 Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond
 
 /-- **Corollary 39**, the minimum-weight and maximum-weight cases, on the word RAM. -/
 theorem wordRam_corollary_39_min_max : Items.Corollary_39_min_max :=
-  Light.Sec5.corollary_39_min_max_of_theorem_19 Light.Sec3.claim_theorem_19_usingCorollary26
+  Light.Sec5.corollary_39_min_max_of_theorem_19 Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond
 
 end ThreeSumApsp
 end

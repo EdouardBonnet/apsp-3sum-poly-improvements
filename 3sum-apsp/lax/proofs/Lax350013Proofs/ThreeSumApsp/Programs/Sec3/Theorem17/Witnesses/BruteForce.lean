@@ -108,6 +108,8 @@ theorem _root_.Lax350013Proofs.Light.TriInst.Pre.weights {x : TriInst} {μ : ℕ
   arrBC := ⟨hpre.lenBC, hpre.segBC, hpre.leBC, hpre.belowBC.trans hok.cells⟩
   arrAC := ⟨hpre.lenAC, hpre.segAC, hpre.leAC, hpre.belowAC.trans hok.cells⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriInst.Pre export _root_.Lax350013Proofs.Light.TriInst.Pre («weights»)
+
 section
 
 variable {pScan : ℕ} {μ : ℕ → ℤ} {ab bc ac n a U fr : ℕ} {AB BC AC : List ℤ}

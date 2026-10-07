@@ -101,6 +101,8 @@ theorem Ends.callLast (hp : Meets lim P p (d + 1) vals μ T' R)
   obtain ⟨hs, rfl⟩ := ha
   exact Ends.call T' hs hb hd (he.mono le_rfl fun _ hR => h _ _ hR) hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («callLast»)
+
 /-- `x := p(args) ; s`.  The rest s of the text gets the steps that are left. -/
 theorem Ends.callThen (hp : Meets lim P p (d + 1) vals μ T' R)
     (h : ∀ r μ', R r μ' → Ends lim P d s ⟨Function.update loc x r, μ'⟩
@@ -110,6 +112,8 @@ theorem Ends.callThen (hp : Meets lim P p (d + 1) vals μ T' R)
     (hT : (args.map Expr.cost).sum + 2 + T' ≤ T := by light_time) :
     Ends lim P d (.call p args x ;; s) ⟨loc, μ⟩ T Q :=
   Ends.next _ (Ends.callLast hp h ha hd le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («callThen»)
 
 /-- `x := p(args)`, with the local variables as a list.  The procedure runs at depth d + 1. -/
 theorem Ends.callTo (hp : Meets lim P p (d + 1) vals μ T' R)
@@ -121,6 +125,8 @@ theorem Ends.callTo (hp : Meets lim P p (d + 1) vals μ T' R)
     Ends lim P d (.call p args x) ⟨frame l, μ⟩ T Q :=
   Ends.callLast hp (fun r μ' hR => update_frame_setLocal l x r ▸ h r μ' hR) ha hd hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («callTo»)
+
 /-- `x := p(args) ; s`, with the local variables as a list.  The procedure runs at depth d + 1. -/
 theorem Ends.callToThen (hp : Meets lim P p (d + 1) vals μ T' R)
     (h : ∀ r μ', R r μ' → Ends lim P d s ⟨frame (setLocal l x r), μ'⟩
@@ -131,6 +137,8 @@ theorem Ends.callToThen (hp : Meets lim P p (d + 1) vals μ T' R)
     (hT : (args.map Expr.cost).sum + 2 + T' ≤ T := by light_time) :
     Ends lim P d (.call p args x ;; s) ⟨frame l, μ⟩ T Q :=
   Ends.next _ (Ends.callTo hp h ha hd le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («callToThen»)
 
 end
 

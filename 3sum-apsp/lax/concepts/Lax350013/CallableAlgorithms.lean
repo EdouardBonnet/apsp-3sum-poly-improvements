@@ -5,85 +5,173 @@ SPDX-License-Identifier: Apache-2.0
 -/
 /-
 Modified for the independent Lax packaging by Édouard Bonnet, 2026.
-Derived from 3sum-apsp/ThreeSumApsp/TimeClaims/Sec3/Definitions.lean at upstream commit e1a4e6508154ea59f030480661590a9fe3018011.
+Derived from 3sum-apsp/ThreeSumApsp/TimeClaims/Sec3/Definitions.lean / Programs/LightModel.lean / Sec3/Parameters.lean at upstream commit e1a4e6508154ea59f030480661590a9fe3018011.
 Changes: Lax module/namespace layout, separated concepts and proofs, archive
 annotations, and compatibility with the archive Lean/mathlib environment.
 See NOTICE and README.md in the submission root for provenance and scope.
 -/
 
-import Lax350013Proofs.ThreeSumApsp.Sec3.Parameters
-import Lax350013Proofs.ThreeSumApsp.Util.Asymptotics.UpperBounds
-import Lax350013.CallableAlgorithms
-
-namespace Lax350013Proofs
+import Mathlib.Algebra.MvPolynomial.Basic
+import Mathlib.Analysis.SpecialFunctions.Log.Base
+import Mathlib.Analysis.SpecialFunctions.Log.Basic
+import Mathlib.Analysis.SpecialFunctions.Pow.Real
+import Mathlib.Combinatorics.SimpleGraph.Basic
+import Mathlib.Data.Finset.Sort
+import Mathlib.LinearAlgebra.Matrix.Notation
+import Mathlib.MeasureTheory.Integral.Bochner.Basic
+import Mathlib.NumberTheory.PrimeCounting
+import Mathlib.Probability.Independence.Basic
+import Mathlib.Tactic.DeriveFintype
+import Lax350013.CallableProblems
 
 /-!
-# Running-time claims of Sections 2 to 4, for an abstract notion of "solved in time T"
-
-The paper derives many of its running times from others: "Plug Theorem 19 into Theorem 21", "This is
-Corollary 26 with N = n". To check such deductions on their own, this file introduces
-
-* the record `DetTimeModel`: for each problem of Sections 2 to 4 a predicate on running times `T`,
-  read as "a deterministic algorithm solves the problem in time `T`", about which nothing is
-  assumed (the record `ConditionalTimes.TimeModel` of the three conditional lemmas is another
-  one, and nothing links the two);
-* two closure properties of the set of running times (namespace `Closure`), which are hypotheses
-  like the claims;
-* the claims, each as a proposition about `M : DetTimeModel` (namespace `Claim`): time sentences of
-  the paper, transfer claims ("if B is solved in time T then A is solved in time extra + calls · T")
-  that the paper proves or calls straightforward, and the results it cites from the literature
-  (docstrings marked CITED, names starting with an author key, such as `Claim.CH20_Theorem_5_1`).
-
-The lemmas of the files beside this one, such as `Corollary16.of_corollary_26`, are implications
-between claims, valid for every `M`. No machine is defined here and no running time is proved here.
-They are applied to the interpretation `Light.lightModel`, in which `M.problem T` says that a
-procedure of a program of the light language solves the problem within `T` steps; there the lemmas
-carry the running times of the programs to the theorems of the paper, and the compiler carries these
-to the word RAM.  For that interpretation both closure properties and every claim, at the parameters
-of the paper, are proved, the cited results included: the reductions are written as programs
-(theorems named `claim_…` and `closure_…`), and the derived claims follow by the lemmas.  So no
-statement about the word RAM has a claim as a hypothesis.
-
-Conventions.
-
-* The parameters of a running time.  Sizes (`n`, `N`, `s`) are exact.  `D` is exact for the matrix
-  problems (the matrices are `N × D` and `D × N`); for the two triangle problems of Section 3.1 it
-  is a declared parameter, given with the input: a graph whose middle part has at most `D` vertices.
-  Only `w` and `u` are upper bounds: "at most `w` query pairs (or positions)", "numbers of absolute
-  value at most `u`".
-* Sizes are at least 1 and bounds `u` on numbers are at least 1.  The value of a running time at
-  size 0 or at a bound below 1 has no meaning: `M.problem T` says nothing about it.
-* Word length.  The intended machine is the paper's word RAM (Section 2); its words are taken to
-  have `Θ(log(size))` bits, and `Θ(log(n + D))` bits for the four problems that have the parameter
-  `D`.  Numbers need not fit into one word, since `u` is not bounded in terms of the size: a number
-  of absolute value at most `u` takes at most about `1 + log u` words, whatever the size (sizes go
-  down to 1), and about `κ` words if `u = n^κ`.  This is why factors `1 + log u` appear in
-  overheads.  For `u = n^{O(1)}`, the case of the paper's theorems, these factors are constants or
-  logarithms.
-* Calls.  As in Section 3 of the paper ("the extra time plus the total time to solve B on each
-  instance created"), a transfer claim charges a call of an algorithm exactly its running time, and
-  everything else to the extra time.  An algorithm that is called runs on the caller's machine,
-  whose words may be longer than its own input would require. Proving the claims for an
-  interpretation `M` requires that this is legitimate for `M`.
-* The bound `u` on the numbers is an argument of its own, not a function of the size, because
-  Theorem 21(b) fixes the bound and lets the size vary.
-* `O(·)` with several parameters is written with an explicit constant.  `O(·)` in `n` alone, along
-  `u = n^κ`, is `UpperBigOPow`, `UpperPowPolylog` or `UpperPowLittleO`: a running time is only ever
-  bounded from above.
+---
+title: Time bounds for callable algorithms and reductions
+type: definition
+---
+Running-time statements interpreted by actual procedures with the preceding memory and resource contracts. A reduction converts any solver satisfying its input contract into a solver for its output problem, charging all calls and overhead. The model is a definition, not an assumed machine oracle.
 -/
 
-section
+namespace Lax350013.CallableAlgorithms
 
-namespace ThreeSumApsp
+open Finset
+open Lax350013.StructuredPrograms
+open Lax350013.ProcedureContracts
+open Lax350013.CallableProblems
 
-/- An interpretation of "a deterministic algorithm solves the problem in time T", for each problem
+open Filter Asymptotics
+
+/-- The largest number of query pairs that is "at most n²/√D" (Corollary 15 and Theorem 17;
+Theorem 5 has "at most N²/√D"): `⌊n²/√D⌋`. -/
+noncomputable def queryCap (n D : ℕ) : ℕ := ⌊(n : ℝ) ^ 2 / Real.sqrt D⌋₊
+
+/-- `f(n) = n^{a+o(1)}`.
+
+NOTE.  We read it as an upper bound, as the paper uses it for times and for numbers and sizes of
+instances: there is a sequence `ε(n) → 0` with `|f(n)| ≤ n^{a+ε(n)}` for all large `n`. -/
+def IsPowLittleO (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  ∃ ε : ℕ → ℝ, Filter.Tendsto ε Filter.atTop (nhds 0) ∧
+    ∀ᶠ n : ℕ in Filter.atTop, |f n| ≤ (n : ℝ) ^ (a + ε n)
+
+/-- `f(n) = O(n^a (log n)^{O(1)})`. -/
+def IsPowPolylog (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  ∃ e : ℕ, Asymptotics.IsBigO Filter.atTop f fun n : ℕ => (n : ℝ) ^ a * Real.log n ^ e
+
+/-- `f(n) = O(n^a)`. -/
+def IsBigOPow (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  Asymptotics.IsBigO Filter.atTop f fun n : ℕ => (n : ℝ) ^ a
+
+/-- `log U`, read as `log 2` for `U < 2`, so that a bound with `log U` is positive at `U = 1` as
+well. It occurs in the bounds of Theorem 21(b) and in the overhead for copying in
+`ConditionalTimes.Claim.RectMinPlusFromSquare`. -/
+noncomputable def logU (u : ℝ) : ℝ := Real.log (max u 2)
+
+/-- The cube root of `n`, rounded up: `⌈n^{1/3}⌉`. -/
+noncomputable def cbrtCeil (n : ℕ) : ℕ := ⌈(n : ℝ) ^ (1 / 3 : ℝ)⌉₊
+
+/-- Theorem 21(b): "with T(s)/s nondecreasing". -/
+def DivNondecreasing (T : ℕ → ℝ) : Prop :=
+  ∀ s₁ s₂ : ℕ, 1 ≤ s₁ → s₁ ≤ s₂ → T s₁ / s₁ ≤ T s₂ / s₂
+
+/-- Theorem 21(b): a running time "T(s) with T(s)/s nondecreasing", for every fixed bound
+`u` on the numbers.
+
+NOTE.  We also ask that `T(s) ≥ s² (1 + log u)`, which is an upper bound for the time to write down
+the `3s²` weights of an instance. The paper does not say this, but its bound
+`O(n² T(n^{1/3}) log² U)` leaves no room for writing down the instances otherwise.  The condition is
+a hypothesis on the running times that are fed into Theorem 21(b), so it makes the claims that use
+it weaker, not stronger. -/
+def GoodTime (T : ℕ → ℝ → ℝ) : Prop :=
+  (∀ (s : ℕ) (u : ℝ), 1 ≤ s → (s : ℝ) ^ 2 * (1 + logU u) ≤ T s u) ∧
+    ∀ u : ℝ, DivNondecreasing fun s => T s u
+
+/-- The running time `K s^{3−δ} (log s + 1)^e (1 + log u)²` for Exact Triangle on `s` vertices per
+part with weights of absolute value at most `u`, as a function of both arguments. -/
+noncomputable def uniformTime (K δ : ℝ) (e : ℕ) (s : ℕ) (u : ℝ) : ℝ :=
+  K * ((s : ℝ) ^ (3 - δ) * (Real.log s + 1) ^ e * (1 + logU u) ^ 2)
+
+/-- **Theorem 17**, the first term of the additional time, "ν n³ log n/g".  It pays for the scans.
+`κ` is the paper's ν. -/
+noncomputable def termScans (n g : ℕ) (κ : ℝ) : ℝ := κ * (n : ℝ) ^ 3 * Real.log n / (g : ℝ)
+
+/-- **Theorem 17**, the second term of the additional time, "n^{ω+o(1)} D^{3/2}".  It pays for the
+choice of the prime.  `MM n` stands for the number of ring operations of the matrix multiplication,
+the paper's `n^{ω+o(1)}`. -/
+noncomputable def termPrime (MM : ℕ → ℝ) (n D : ℕ) : ℝ := MM n * (D : ℝ) ^ (3 / 2 : ℝ)
+
+/-- **Theorem 17**, the third term of the additional time, "n² D g".  It pays for building the
+instances. -/
+noncomputable def termBuild (n D g : ℕ) : ℝ := (n : ℝ) ^ 2 * (D : ℝ) * (g : ℝ)
+
+/-- Strassen's number of ring operations, up to a constant: `n^{log₂ 7}`. -/
+noncomputable def strassen (n : ℕ) : ℝ := (n : ℝ) ^ Real.logb 2 7
+
+/-- Proof of Theorem 19, by Theorem 5: "Let D be the largest power of four with D ≤
+n^{1/18}". -/
+noncomputable def paramD₅ (n : ℕ) : ℕ := 4 ^ Nat.log 4 ⌊(n : ℝ) ^ (1 / 18 : ℝ)⌋₊
+
+/-- Proof of Theorem 19, by Theorem 5: "and let g := ⌈D^{1/36}⌉". -/
+noncomputable def paramG₅ (n : ℕ) : ℕ := ⌈(paramD₅ n : ℝ) ^ (1 / 36 : ℝ)⌉₊
+
+/-- Proof of Theorem 19, by Corollary 26: "Let D := ⌊n^{1/18}⌋". -/
+noncomputable def paramD₂₆ (n : ℕ) : ℕ := ⌊(n : ℝ) ^ (1 / 18 : ℝ)⌋₊
+
+/-- Proof of Theorem 19, by Corollary 26: "and g := ⌈D^{0.0315}⌉". -/
+noncomputable def paramG₂₆ (n : ℕ) : ℕ := ⌈(paramD₂₆ n : ℝ) ^ (0.0315 : ℝ)⌉₊
+
+/-- Corollary 15: the size `⌊n²/√D⌋` of the sets into which `W` is split (at least 1, so
+that the split makes sense for all values of the parameters). -/
+noncomputable def splitCap (n D : ℕ) : ℕ := max 1 (queryCap n D)
+
+/-- `f(n) = O(n^a)`, as an upper bound. -/
+def UpperBigOPow (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  ∃ C : ℝ, ∀ᶠ n : ℕ in Filter.atTop, f n ≤ C * (n : ℝ) ^ a
+
+/-- `f(n) = O(n^a (log n)^{O(1)})`, as an upper bound. -/
+def UpperPowPolylog (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  ∃ (C : ℝ) (e : ℕ), ∀ᶠ n : ℕ in Filter.atTop, f n ≤ C * ((n : ℝ) ^ a * Real.log n ^ e)
+
+/-- There is a sequence `ε(n) → 0` with `f(n) ≤ n^{a+ε(n)}` for all large `n`: a bound on `f` and
+not on `|f|` (that is `IsPowLittleO`). -/
+def UpperPowLittleO (f : ℕ → ℝ) (a : ℝ) : Prop :=
+  ∃ ε : ℕ → ℝ, Filter.Tendsto ε Filter.atTop (nhds 0) ∧
+    ∀ᶠ n : ℕ in Filter.atTop, f n ≤ (n : ℝ) ^ (a + ε n)
+
+
+/-- An interpretation of "a deterministic algorithm solves the problem in time T", for each problem
 of Sections 2 to 4. Each field is a predicate on running times.  The intended meaning of
 `M.problem T`: there is a deterministic algorithm that gives a correct answer on every input, and
 that takes time at most `T(parameters)` on every input with these parameters (sizes and `D` as
 given, at most `w` pairs, numbers at most `u`; sizes and `u` at least 1). -/
-export Lax350013.CallableAlgorithms (DetTimeModel DetTimeModel.mk DetTimeModel.thinProduct DetTimeModel.lopCount DetTimeModel.lopDetect DetTimeModel.exactTriangle DetTimeModel.negativeTriangle DetTimeModel.convolution3SUM DetTimeModel.threeSum DetTimeModel.minPlusProduct DetTimeModel.apsp)
+structure DetTimeModel where
+  /-- Theorem 5: given `X ∈ ℤ^{N×D}`, `Y ∈ ℤ^{D×N}` with entries of absolute value at most
+  `u` and a set of at most `w` positions, compute the wanted entries of `XY` (`IsWantedEntries`).
+  The arguments of the time are `N D w u`. -/
+  thinProduct : (ℕ → ℕ → ℕ → ℝ → ℝ) → Prop
+  /-- #Lop-AE-SparseTri(n, D), Definition 14, with at most `w` query pairs
+  (`LopInstance.IsCountingAnswer`).  The arguments of the time are `n D w`. -/
+  lopCount : (ℕ → ℕ → ℕ → ℝ) → Prop
+  /-- Lop-AE-SparseTri(n, D), Definition 13, with at most `w` query pairs
+  (`LopInstance.IsDetectionAnswer`).  The arguments of the time are `n D w`. -/
+  lopDetect : (ℕ → ℕ → ℕ → ℝ) → Prop
+  /-- Exact Triangle on `n` vertices per part with integer weights of absolute value at most `u`
+  (`TriangleInstance.HasZeroTriangle`).  The arguments of the time are `n u`. -/
+  exactTriangle : (ℕ → ℝ → ℝ) → Prop
+  /-- Negative Triangle, decision (`TriangleInstance.HasNegativeTriangle`).  Arguments `n u`. -/
+  negativeTriangle : (ℕ → ℝ → ℝ) → Prop
+  /-- Convolution-3SUM on `N` integers of absolute value at most `u` (`Convolution3SUM`).  Arguments
+  `N u`. -/
+  convolution3SUM : (ℕ → ℝ → ℝ) → Prop
+  /-- 3SUM on `n` integers of absolute value at most `u` (`ThreeSum`).  Arguments `n u`. -/
+  threeSum : (ℕ → ℝ → ℝ) → Prop
+  /-- The (min,+)-product of two `n × n` integer matrices with entries of absolute value at most `u`
+  (`IsMinPlusProduct`). Arguments `n u`. -/
+  minPlusProduct : (ℕ → ℝ → ℝ) → Prop
+  /-- APSP on directed `n`-vertex graphs with integer weights of absolute value at most `u` and no
+  negative cycles (`IsDistanceMatrix`, `NoNegativeCycle`).  Arguments `n u`. -/
+  apsp : (ℕ → ℝ → ℝ) → Prop
 
-/-! ## The bounds in `n`, `D` and the number `w` of positions or query pairs -/
+/- ## The bounds in `n`, `D` and the number `w` of positions or query pairs -/
 
 /-- The bound of Theorem 5 and of the first case of Corollary 15: `n² log² D / D^{1/18}`. -/
 noncomputable abbrev thinBound (n D : ℕ) : ℝ :=
@@ -115,7 +203,7 @@ end Closure
 
 namespace Claim
 
-/-! ## Time sentences -/
+/- ## Time sentences -/
 
 /-- **Theorem 5**, the time sentence: "Let D ≥ 4 be a power of four and N ≥ D^18.  Given as
 input matrices X ∈ ℤ^{N×D} and Y ∈ ℤ^{D×N}, whose entries are integers of absolute value at most
@@ -133,7 +221,7 @@ triples; the factor `1 + log u` allows for weights that do not fit into one mach
 def BruteForce (M : DetTimeModel) : Prop :=
   ∃ C : ℝ, M.exactTriangle fun n u => C * ((n : ℝ) ^ 3 * (1 + logU u))
 
-/-! ## Transfer claims that the paper proves or calls straightforward -/
+/- ## Transfer claims that the paper proves or calls straightforward -/
 
 /-- Proof of Corollary 15: "Apply Theorem 5 with N = n to the two biadjacency matrices".
 Writing down the two matrices and copying the answers costs `O(nD + w + 1)`; their entries are 0
@@ -192,7 +280,7 @@ def ApspFromMinPlus (M : DetTimeModel) : Prop :=
       ((Nat.clog 2 n : ℝ) + 1) *
         (T n (c * ((n : ℝ) * u)) + C₀ * ((n : ℝ) ^ 2 * (1 + logU (c * ((n : ℝ) * u)))))
 
-/-! ## Results cited from the literature, in the form needed for Theorem 21 -/
+/- ## Results cited from the literature, in the form needed for Theorem 21 -/
 
 /-- CITED.  After the proof of [CH20, Theorem 5.1]: from n integers bounded by a power of n, a
 deterministic reduction computes polylogarithmically many arrays of length Õ(n), whose entries are
@@ -241,7 +329,7 @@ def VW18_Theorem_4_2 (M : DetTimeModel) : Prop :=
       ∀ (n : ℕ) (U : ℝ), 1 ≤ n → 1 ≤ U →
         T'' n U ≤ C * ((n : ℝ) ^ 2 * T' (cbrtCeil n) (c * U) * logU U)
 
-/-! ## Claims that are derived from the ones above -/
+/- ## Claims that are derived from the ones above -/
 
 /-- **Corollary 26**, last sentence: "Hence, for every set W of positions of an N × N
 matrix, the entries (XY)[I,J], (I,J) ∈ W, can be computed deterministically in O(|W| D^{0.437} +
@@ -354,7 +442,7 @@ def Theorem_21b_apsp (M : DetTimeModel) : Prop :=
         T' n ((n : ℝ) ^ κ)
           ≤ C * ((n : ℝ) ^ 2 * T (cbrtCeil n) (c * (n : ℝ) ^ (κ + 1)) * Real.log n ^ 3)
 
-/-! ## Bounds in `n` alone, along `u = n^κ` -/
+/- ## Bounds in `n` alone, along `u = n^κ` -/
 
 /-- On numbers of absolute value at most `n^κ` the problem is solved deterministically in a time of
 the class `Cls a`, for every constant `κ ≥ 0`.  Here `S` is the field of a `DetTimeModel` that
@@ -386,7 +474,18 @@ abbrev ApspInPolylog (M : DetTimeModel) (a : ℝ) : Prop :=
 
 end Claim
 
-end ThreeSumApsp
-end
 
-end Lax350013Proofs
+
+/-- The reading of "is solved in time T" by programs of the light language. -/
+noncomputable def lightModel : DetTimeModel where
+  thinProduct := ThinSolvedIn
+  lopCount := LopSolvedIn lopCountTask
+  lopDetect := LopSolvedIn lopDetectTask
+  exactTriangle := SolvedIn etTask
+  negativeTriangle := SolvedIn ntTask
+  convolution3SUM := SolvedIn c3Task
+  threeSum := SolvedIn s3Task
+  minPlusProduct := SolvedIn mpTask
+  apsp := SolvedIn apTask
+
+end Lax350013.CallableAlgorithms

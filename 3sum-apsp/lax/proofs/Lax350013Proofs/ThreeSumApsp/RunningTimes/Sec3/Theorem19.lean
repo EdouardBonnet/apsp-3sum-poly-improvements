@@ -17,6 +17,9 @@ import Lax350013Proofs.ThreeSumApsp.Programs.Sec3.Theorem19.ChooseBySize
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Corollary15_16
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Theorem19.Layout
 import Lax350013Proofs.ThreeSumApsp.TimeClaims.Sec3.Theorem19
+import Lax350013.AlgorithmReductions
+import Lax350013.IntegerAlgorithmBounds
+import Lax350013.LopsidedTriangleAlgorithms
 
 namespace Lax350013Proofs
 
@@ -46,11 +49,11 @@ namespace Light.Sec3
 
 /-- Theorem 19, the bound using Theorem 5, for programs of the light language. -/
 theorem claim_theorem_19_usingTheorem5 : Claim.Theorem_19_explicit lightModel (1 / 648) 2 :=
-  Theorem19.explicit_of_theorem_17_corollary_15 _ claim_theorem_17₅ claim_corollary_15_first
+  Theorem19.explicit_of_theorem_17_corollary_15 _ Lax350013.AlgorithmReductions.exactTriangleViaTheorem5 Lax350013.LopsidedTriangleAlgorithms.callableCorollary15First
 
 /-- Theorem 19, the bound using Corollary 26, for programs of the light language. -/
 theorem claim_theorem_19_usingCorollary26 : Claim.Theorem_19_explicit lightModel 0.00175 1 :=
-  Theorem19.explicit_of_theorem_17_corollary_16 _ claim_theorem_17₂₆ claim_corollary_16
+  Theorem19.explicit_of_theorem_17_corollary_16 _ Lax350013.AlgorithmReductions.exactTriangleViaCorollary26 Lax350013.LopsidedTriangleAlgorithms.callableCorollary16
 
 /-- A program that solves Exact Triangle in time `T` solves it in every larger time. -/
 private theorem closure_monoExactTriangle : Closure.MonoExactTriangle lightModel :=
@@ -59,13 +62,13 @@ private theorem closure_monoExactTriangle : Closure.MonoExactTriangle lightModel
 /-- The bound using Theorem 5, for all numbers of vertices and all bounds on the weights. -/
 theorem claim_exactTriangleUniform_usingTheorem5 :
     Claim.ExactTriangleUniform lightModel (1 / 648) 2 :=
-  exactTriangleUniform_of_explicit _ 2 (by norm_num) (by norm_num) claim_theorem_19_usingTheorem5
+  exactTriangleUniform_of_explicit _ 2 (by norm_num) (by norm_num) Lax350013.IntegerAlgorithmBounds.callableExactTriangleFirst
     claim_bruteForce closure_chooseBySize closure_monoExactTriangle
 
 /-- The bound using Corollary 26, for all numbers of vertices and all bounds on the weights. -/
 theorem claim_exactTriangleUniform_usingCorollary26 :
     Claim.ExactTriangleUniform lightModel 0.00175 1 :=
-  exactTriangleUniform_of_explicit _ 1 (by norm_num) (by norm_num) claim_theorem_19_usingCorollary26
+  exactTriangleUniform_of_explicit _ 1 (by norm_num) (by norm_num) Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond
     claim_bruteForce closure_chooseBySize closure_monoExactTriangle
 
 end Light.Sec3
@@ -75,8 +78,8 @@ namespace ThreeSumApsp
 /-- **Theorem 19**, on the word RAM. -/
 theorem wordRam_theorem_19 : Items.Theorem_19 :=
   FromClaims.Theorem19.of_claim Light.lightModel Light.Sec3.realized_exactTriangle
-    (Theorem19.first_of_explicit _ Light.Sec3.claim_theorem_19_usingTheorem5)
-    (Theorem19.second_of_explicit _ Light.Sec3.claim_theorem_19_usingCorollary26)
+    (Theorem19.first_of_explicit _ Lax350013.IntegerAlgorithmBounds.callableExactTriangleFirst)
+    (Theorem19.second_of_explicit _ Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond)
 
 /-- The third bound of the theorem, `O(n^{3−ε_T})`. -/
 theorem WordRam.Items.Theorem_19.rounded (h : Items.Theorem_19) :

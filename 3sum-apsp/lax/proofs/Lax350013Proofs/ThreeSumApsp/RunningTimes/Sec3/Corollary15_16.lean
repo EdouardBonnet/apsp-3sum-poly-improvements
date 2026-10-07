@@ -16,6 +16,10 @@ import Lax350013Proofs.ThreeSumApsp.Programs.Sec4.Corollary26.Claim
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.FromClaims
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Corollary15_16.Layout
 import Lax350013Proofs.ThreeSumApsp.TimeClaims.Sec3.Corollary15_16
+import Lax350013.AlgorithmReductions
+import Lax350013.LopsidedTriangleAlgorithms
+import Lax350013.MatrixPreprocessing
+import Lax350013.SparseMatrixProduct
 
 namespace Lax350013Proofs
 
@@ -39,18 +43,18 @@ namespace Light.Sec3
 
 /-- Corollary 15, the case of at most `n²/√D` query pairs, for programs of the light language. -/
 theorem claim_corollary_15_first : Claim.Corollary_15_first lightModel :=
-  Corollary15.first_of_theorem_5 _ Sec2.claim_theorem_5
-    claim_lopCountFromThinProduct claim_lopDetectFromCount
+  Corollary15.first_of_theorem_5 _ Lax350013.SparseMatrixProduct.callableTheorem5
+    Lax350013.AlgorithmReductions.triangleCountsFromMatrixProduct Lax350013.AlgorithmReductions.triangleDetectionFromCounts
 
 /-- Corollary 15, the general case, for programs of the light language. -/
 theorem claim_corollary_15 : Claim.Corollary_15_general lightModel :=
-  Corollary15.general_of_theorem_5 _ Sec2.claim_theorem_5
-    claim_lopCountFromThinProduct claim_lopSplit claim_lopDetectFromCount
+  Corollary15.general_of_theorem_5 _ Lax350013.SparseMatrixProduct.callableTheorem5
+    Lax350013.AlgorithmReductions.triangleCountsFromMatrixProduct Lax350013.AlgorithmReductions.splitTriangleQueries Lax350013.AlgorithmReductions.triangleDetectionFromCounts
 
 /-- Corollary 16 for programs of the light language. -/
 theorem claim_corollary_16 : Claim.Corollary_16 lightModel :=
-  Corollary16.of_corollary_26 _ Sec4.claim_corollary_26_wanted
-    claim_lopCountFromThinProduct claim_lopDetectFromCount
+  Corollary16.of_corollary_26 _ Lax350013.MatrixPreprocessing.callableCorollary26
+    Lax350013.AlgorithmReductions.triangleCountsFromMatrixProduct Lax350013.AlgorithmReductions.triangleDetectionFromCounts
 
 /-- The outermost procedures and the compiler carry the running times of both problems to the word
 RAM. -/
@@ -63,11 +67,11 @@ namespace ThreeSumApsp
 
 /-- **Corollary 15**, on the word RAM. -/
 theorem wordRam_corollary_15 : Items.Corollary_15 :=
-  FromClaims.Corollary15.of_claim _ Light.Sec3.lopRealized Light.Sec3.claim_corollary_15
+  FromClaims.Corollary15.of_claim _ Light.Sec3.lopRealized Lax350013.LopsidedTriangleAlgorithms.callableCorollary15General
 
 /-- **Corollary 16**, on the word RAM. -/
 theorem wordRam_corollary_16 : Items.Corollary_16 :=
-  FromClaims.Corollary16.of_claim _ Light.Sec3.lopRealized Light.Sec3.claim_corollary_16
+  FromClaims.Corollary16.of_claim _ Light.Sec3.lopRealized Lax350013.LopsidedTriangleAlgorithms.callableCorollary16
 
 end ThreeSumApsp
 end

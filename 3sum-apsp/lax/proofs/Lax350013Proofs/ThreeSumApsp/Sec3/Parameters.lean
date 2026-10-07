@@ -43,6 +43,8 @@ namespace ThreeSumApsp
 noncomputable def TriangleInstance.totalChunks {n : ℕ} (T : TriangleInstance ℤ n) (D p : ℕ) : ℕ :=
   ∑ ϱ : Fin p, numChunks (T.residueClass p ϱ) (queryCap n D)
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («totalChunks»)
+
 /-- Theorem 21(b): "with T(s)/s nondecreasing". -/
 def DivNondecreasing (T : ℕ → ℝ) : Prop :=
   ∀ s₁ s₂ : ℕ, 1 ≤ s₁ → s₁ ≤ s₂ → T s₁ / s₁ ≤ T s₂ / s₂

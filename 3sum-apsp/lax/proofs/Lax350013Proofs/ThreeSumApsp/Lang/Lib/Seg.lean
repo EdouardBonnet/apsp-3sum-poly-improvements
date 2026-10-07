@@ -19,6 +19,7 @@ import Mathlib.Data.List.GetD
 import Mathlib.Data.Nat.SuccPred
 import Mathlib.LinearAlgebra.Matrix.Defs
 import Mathlib.Tactic.Positivity
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -38,8 +39,8 @@ namespace Light
 
 open ThreeSumApsp
 
-/-- The cells a, a + 1, … of the memory μ hold the list l. -/
-def Seg (μ : ℕ → ℤ) (a : ℕ) (l : List ℤ) : Prop := ∀ i (h : i < l.length), μ (a + i) = l[i]
+/- The cells a, a + 1, … of the memory μ hold the list l. -/
+export Lax350013.ProcedureContracts (Seg)
 
 /-- The list held by the n cells from address a. -/
 def readSeg (μ : ℕ → ℤ) (a n : ℕ) : List ℤ := (List.range n).map fun i => μ (a + i)
@@ -59,16 +60,24 @@ theorem seg_readSeg : Seg μ a (readSeg μ a n) := fun i h => by simp
 
 @[simp] theorem Seg.nil : Seg μ a [] := fun i h => absurd h (by simp)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («nil»)
+
 /-- Reading a cell of a segment. -/
 theorem Seg.get (h : Seg μ a l) {i : ℕ} (hi : i < l.length) : μ (a + i) = l[i] := h i hi
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («get»)
 
 /-- Reading a cell of a segment, with a default value for the list. -/
 theorem Seg.getD (h : Seg μ a l) {i : ℕ} (hi : i < l.length) (d : ℤ) : μ (a + i) = l.getD i d := by
   rw [h i hi, List.getD_eq_getElem _ _ hi]
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («getD»)
+
 /-- A segment determines its list. -/
 theorem Seg.eq_readSeg (h : Seg μ a l) : l = readSeg μ a l.length :=
   List.ext_getElem (by simp) fun i h₁ h₂ => by rw [getElem_readSeg, h i h₁]
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («eq_readSeg»)
 
 theorem seg_cons : Seg μ a (x :: l) ↔ μ a = x ∧ Seg μ (a + 1) l := by
   constructor
@@ -104,19 +113,27 @@ theorem Seg.take (h : Seg μ a l) (k : ℕ) : Seg μ a (l.take k) := fun i hi =>
   have hi' : i < l.length := by simp at hi; omega
   rw [List.getElem_take, h i hi']
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («take»)
+
 theorem Seg.drop (h : Seg μ a l) (k : ℕ) : Seg μ (a + k) (l.drop k) := fun i hi => by
   have hi' : k + i < l.length := by simp at hi; omega
   rw [List.getElem_drop, ← h _ hi', Nat.add_assoc]
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («drop»)
+
 /-- A segment only depends on its own cells. -/
 theorem Seg.congr (h : Seg μ a l) (he : ∀ i < l.length, μ' (a + i) = μ (a + i)) : Seg μ' a l :=
   fun i hi => by rw [he i hi, h i hi]
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («congr»)
 
 /-- A segment stays where it is if its cells do not change.  By the default proof of `hs`, the term
 `h.keep` carries `h` to a later memory across the steps whose promises are in the context. -/
 theorem Seg.keep (h : Seg μ a l) (hs : SameOn (Inside a l.length) μ μ' := by light_keep) :
     Seg μ' a l :=
   h.congr fun i hi => hs _ ⟨by omega, by omega⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («keep»)
 
 /-- Writing into a segment. -/
 theorem Seg.update_in (h : Seg μ a l) {i : ℕ} (hi : i < l.length) (x : ℤ) :
@@ -127,18 +144,26 @@ theorem Seg.update_in (h : Seg μ a l) {i : ℕ} (hi : i < l.length) (x : ℤ) :
   · subst hji; simp
   · rw [Function.update_of_ne (by omega), List.getElem_set_of_ne (by omega), h j hj']
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («update_in»)
+
 /-- Writing outside a segment. -/
 theorem Seg.update_out (h : Seg μ a l) (hb : b < a ∨ a + l.length ≤ b) (x : ℤ) :
     Seg (Function.update μ b x) a l :=
   h.congr fun i hi => Function.update_of_ne (by omega) _ _
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («update_out»)
+
 /-- Writing just after a segment makes it longer. -/
 theorem Seg.snoc (h : Seg μ a l) (x : ℤ) : Seg (Function.update μ (a + l.length) x) a (l ++ [x]) :=
   seg_append.2 ⟨h.update_out (Or.inr le_rfl) x, by simp [seg_cons]⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («snoc»)
+
 /-- A segment all of whose cells are kept. -/
 theorem Seg.of_sameOn {K : ℕ → Prop} (h : Seg μ b l) (hs : SameOn K μ μ')
     (hK : ∀ i < l.length, K (b + i)) : Seg μ' b l := h.congr fun i hi => hs _ (hK i hi)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («of_sameOn»)
 
 theorem SameOutside.refl : SameOutside μ μ a n := SameOn.refl
 
@@ -165,23 +190,31 @@ theorem Seg.of_sameOutside (h : Seg μ b l) (hs : SameOutside μ μ' a n)
     (hd : b + l.length ≤ a ∨ a + n ≤ b) : Seg μ' b l :=
   h.congr fun i hi => hs _ (by omega)
 
-/-- The cells a, a + 1, … hold a list of natural numbers. -/
-abbrev SegN (μ : ℕ → ℤ) (a : ℕ) (l : List ℕ) : Prop := Seg μ a (l.map fun x : ℕ => (x : ℤ))
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («of_sameOutside»)
+
+/- The cells a, a + 1, … hold a list of natural numbers. -/
+export Lax350013.ProcedureContracts (SegN)
 
 /-- Reading a cell of a segment of natural numbers. -/
 theorem SegN.read {l : List ℕ} (h : SegN μ a l) {i : ℕ} (hi : i < l.length) :
     μ (a + i) = ((l.getD i 0 : ℕ) : ℤ) := by
   rw [h i (by simpa using hi), List.getElem_map, List.getD_eq_getElem _ _ hi]
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («read»)
+
 /-- Reading a cell of a segment of natural numbers, with the proof that the index is in range. -/
 theorem SegN.getElem {l : List ℕ} (h : SegN μ a l) {i : ℕ} (hi : i < l.length) :
     μ (a + i) = (l[i] : ℕ) := by
   rw [h i (by simpa using hi), List.getElem_map]
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («getElem»)
+
 /-- Writing just after a segment of natural numbers makes it longer. -/
 theorem SegN.snoc {l : List ℕ} (h : SegN μ a l) (x : ℕ) :
     SegN (Function.update μ (a + l.length) (x : ℤ)) a (l ++ [x]) := by
   simpa [SegN] using Seg.snoc h (x : ℤ)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («snoc»)
 
 /-- One more entry of a list of natural numbers is written behind its first k entries. -/
 theorem SegN.take_succ {l : List ℕ} {k : ℕ} (h : SegN μ a (l.take k)) (hk : k < l.length) :
@@ -189,20 +222,28 @@ theorem SegN.take_succ {l : List ℕ} {k : ℕ} (h : SegN μ a (l.take k)) (hk :
   have hsnoc := h.snoc (l.getD k 0)
   rwa [List.length_take, Nat.min_eq_left hk.le, ← List.take_succ_getD l hk 0] at hsnoc
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («take_succ»)
+
 /-- A piece of a segment of natural numbers: w cells from the place lo on. -/
 theorem SegN.drop_take {l : List ℕ} (h : SegN μ a l) (lo w : ℕ) :
     SegN μ (a + lo) ((l.drop lo).take w) := by
   simpa only [SegN, List.map_take, List.map_drop] using (Seg.drop h lo).take w
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («drop_take»)
 
 /-- A segment of natural numbers stays where it is if its cells do not change. -/
 theorem SegN.keep {l : List ℕ} (h : SegN μ a l)
     (hs : SameOn (Inside a l.length) μ μ' := by light_keep) : SegN μ' a l :=
   Seg.keep h (by simpa using hs)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («keep»)
+
 /-- A segment of natural numbers that does not meet the region is kept. -/
 theorem SegN.of_sameOutside {l : List ℕ} (h : SegN μ b l) (hs : SameOutside μ μ' a n)
     (hd : b + l.length ≤ a ∨ a + n ≤ b) : SegN μ' b l :=
   Seg.of_sameOutside h hs (by simpa using hd)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SegN export _root_.Lax350013Proofs.Light.SegN («of_sameOutside»)
 
 /-- The cells from a on hold the matrix A, row by row. -/
 def MatAt {n k : ℕ} (μ : ℕ → ℤ) (a : ℕ) (A : Matrix (Fin n) (Fin k) ℤ) : Prop :=

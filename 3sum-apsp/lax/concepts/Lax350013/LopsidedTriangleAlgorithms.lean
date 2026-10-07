@@ -23,13 +23,14 @@ import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Tactic.DeriveFintype
 import Lax350013.LopsidedTriangles
+import Lax350013.CallableAlgorithms
 
 /-!
 ---
 title: Faster lopsided triangle algorithms
 type: theorem
 ---
-Corollary 16 solves counting and detection in $O(|W|D^{0.437}+N^2/D^{0.063})$ time for $1\leq D$ and $D^{18}\leq N$. Corollary 15 records the earlier logarithmic bound for powers of four.
+Corollary 16 solves counting and detection in $O(|W|D^{0.437}+N^2/D^{0.063})$ time for $1\leq D$ and $D^{18}\leq N$. Corollary 15 records the earlier logarithmic bound for powers of four. The callable versions also preserve memory and resource guarantees needed when these algorithms are used as subroutines.
 -/
 
 namespace Lax350013.LopsidedTriangleAlgorithms
@@ -77,5 +78,17 @@ axiom corollary15 : Corollary_15
 
 /-- Faster lopsided triangle algorithms: Corollary 16. -/
 axiom corollary16 : Corollary_16
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_corollary_15_first`. -/
+axiom callableCorollary15First : Lax350013.CallableAlgorithms.Claim.Corollary_15_first Lax350013.CallableAlgorithms.lightModel
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_corollary_15`. -/
+axiom callableCorollary15General : Lax350013.CallableAlgorithms.Claim.Corollary_15_general Lax350013.CallableAlgorithms.lightModel
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_corollary_16`. -/
+axiom callableCorollary16 : Lax350013.CallableAlgorithms.Claim.Corollary_16 Lax350013.CallableAlgorithms.lightModel
 
 end Lax350013.LopsidedTriangleAlgorithms

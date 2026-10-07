@@ -56,32 +56,40 @@ instance Cond.decidableHolds (σ : State) : (c : Cond) → Decidable (c.Holds σ
 @[simp] def Stmt.after : Stmt → State → State
   | .set x e, σ => { σ with loc := Function.update σ.loc x (e.val σ) }
   | .store a e, σ => { σ with mem := Function.update σ.mem (a.val σ).toNat (e.val σ) }
-  | .seq s t, σ => t.after (s.after σ)
-  | .ite c s t, σ => if c.Holds σ then s.after σ else t.after σ
+  | .seq s t, σ => (Stmt.after  t) ((Stmt.after  s) σ)
+  | .ite c s t, σ => if c.Holds σ then (Stmt.after  s) σ else (Stmt.after  t) σ
   | _, σ => σ
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («after»)
 
 /-- A bound on the number of steps of a block: the longer side of each branch counts (0 for a loop
 or a call). -/
 @[simp] def Stmt.blockCost : Stmt → ℕ
   | .set _ e => e.cost + 1
   | .store a e => a.cost + e.cost + 1
-  | .seq s t => s.blockCost + t.blockCost
-  | .ite c s t => c.cost + 1 + max s.blockCost t.blockCost
+  | .seq s t => (Stmt.blockCost  s) + (Stmt.blockCost  t)
+  | .ite c s t => c.cost + 1 + max (Stmt.blockCost  s) (Stmt.blockCost  t)
   | _ => 0
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («blockCost»)
 
 /-- The statement is a block, and its run from σ stays within the limits. -/
 @[simp] def Stmt.BlockSafe (lim : Limits) : Stmt → State → Prop
   | .skip, _ => True
   | .set _ e, σ => e.Safe lim σ
   | .store a e, σ => a.Safe lim σ ∧ e.Safe lim σ ∧ lim.Addr (a.val σ)
-  | .seq s t, σ => s.BlockSafe lim σ ∧ t.BlockSafe lim (s.after σ)
+  | .seq s t, σ => (Stmt.BlockSafe lim s) σ ∧ (Stmt.BlockSafe lim t) (s.after σ)
   | .ite c s t, σ =>
-    c.Safe lim σ ∧ (c.Holds σ → s.BlockSafe lim σ) ∧ (¬ c.Holds σ → t.BlockSafe lim σ)
+    c.Safe lim σ ∧ (c.Holds σ → (Stmt.BlockSafe lim s) σ) ∧ (¬ c.Holds σ → (Stmt.BlockSafe lim t) σ)
   | _, _ => False
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («BlockSafe»)
 
 /-- The block s, started in σ, stays within the limits and ends in a state that satisfies R. -/
 abbrev Stmt.Runs (lim : Limits) (s : Stmt) (σ : State) (R : State → Prop) : Prop :=
   s.BlockSafe lim σ ∧ R (s.after σ)
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («Runs»)
 
 /-! ## The default proofs -/
 
@@ -126,10 +134,14 @@ theorem Stmt.Runs.mono {s : Stmt} {σ : State} {R R' : State → Prop} (h : s.Ru
     (hR : ∀ σ', R σ' → R' σ') : s.Runs lim σ R' :=
   ⟨h.1, hR _ h.2⟩
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt.Runs export _root_.Lax350013Proofs.Light.Stmt.Runs («mono»)
+
 /-- Two blocks, one after the other. -/
 theorem Stmt.Runs.seq {s t : Stmt} {σ : State} {R : State → Prop}
     (h : s.Runs lim σ fun σ' => t.Runs lim σ' R) : (s ;; t).Runs lim σ R :=
   ⟨⟨h.1, h.2.1⟩, h.2.2⟩
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt.Runs export _root_.Lax350013Proofs.Light.Stmt.Runs («seq»)
 
 /-- A branch whose test holds. -/
 theorem Stmt.Runs.ite_pos {c : Cond} {s t : Stmt} {σ : State} {R : State → Prop}
@@ -137,11 +149,15 @@ theorem Stmt.Runs.ite_pos {c : Cond} {s t : Stmt} {σ : State} {R : State → Pr
     (Stmt.ite c s t).Runs lim σ R :=
   ⟨⟨hs, fun _ => h.1, fun hn => absurd hc hn⟩, by simpa only [Stmt.after, if_pos hc] using h.2⟩
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt.Runs export _root_.Lax350013Proofs.Light.Stmt.Runs («ite_pos»)
+
 /-- A branch whose test fails. -/
 theorem Stmt.Runs.ite_neg {c : Cond} {s t : Stmt} {σ : State} {R : State → Prop}
     (h : t.Runs lim σ R) (hc : ¬ c.Holds σ := by light_side) (hs : c.Safe lim σ := by light_side) :
     (Stmt.ite c s t).Runs lim σ R :=
   ⟨⟨hs, fun hp => absurd hp hc, fun _ => h.1⟩, by simpa only [Stmt.after, if_neg hc] using h.2⟩
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt.Runs export _root_.Lax350013Proofs.Light.Stmt.Runs («ite_neg»)
 
 theorem Ends.of_blockSafe : ∀ {s : Stmt} {σ : State} {T : ℕ} {Q : State → Prop}, s.BlockSafe lim σ →
     s.blockCost ≤ T → Q (s.after σ) → Ends lim P d s σ T Q
@@ -161,11 +177,15 @@ theorem Ends.of_blockSafe : ∀ {s : Stmt} {σ : State} {T : ℕ} {Q : State →
   | .while _ _, _, _, _, hs, _, _ => hs.elim
   | .call _ _ _, _, _, _, hs, _, _ => hs.elim
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («of_blockSafe»)
+
 /-- **Blocks.**  A block that runs safely from σ ends within any T ≥ s.blockCost, in the state
 s.after σ. -/
 theorem Ends.block {s : Stmt} {σ : State} {T : ℕ} {Q : State → Prop} (h : s.Runs lim σ Q)
     (hT : s.blockCost ≤ T := by light_time) : Ends lim P d s σ T Q :=
   Ends.of_blockSafe h.1 hT h.2
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («block»)
 
 /-! ## Sequencing: what is left of the time goes to the rest of the program -/
 
@@ -174,6 +194,8 @@ theorem Ends.next {σ : State} {T : ℕ} {s₁ s₂ : Stmt} {Q : State → Prop}
     (h : Ends lim P d s₁ σ T₁ fun σ' => Ends lim P d s₂ σ' (T - T₁) Q)
     (hT : T₁ ≤ T := by light_time) : Ends lim P d (s₁ ;; s₂) σ T Q :=
   Ends.seq T₁ (T - T₁) h (by omega)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («next»)
 
 /-- Brackets do not matter: a piece of several statements, followed by the rest of the program, is
 run statement by statement. -/
@@ -185,10 +207,14 @@ theorem Ends.seqAssoc {σ : State} {T : ℕ} {s₁ s₂ s₃ : Stmt} {Q : State 
     cases he₂₃ with
     | seq he₂ he₃ => exact ⟨σ', _, .seq (.seq he₁ he₂) he₃, by omega, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («seqAssoc»)
+
 /-- A `skip` before the rest of the program takes no step. -/
 theorem Ends.skipThen {σ : State} {T : ℕ} {s : Stmt} {Q : State → Prop} (h : Ends lim P d s σ T Q) :
     Ends lim P d (.skip ;; s) σ T Q :=
   Ends.seq 0 T (Ends.skip h) (by omega)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («skipThen»)
 
 /-- A `skip` may be put behind a statement. -/
 theorem Ends.skipLast {σ : State} {T : ℕ} {s : Stmt} {Q : State → Prop}
@@ -199,10 +225,14 @@ theorem Ends.skipLast {σ : State} {T : ℕ} {s : Stmt} {Q : State → Prop}
     cases he₂
     exact ⟨σ', _, he₁, by omega, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («skipLast»)
+
 /-- A program that is defined as a sequence may be treated as the sequence. -/
 theorem Ends.seqSelf {σ : State} {T : ℕ} {s₁ s₂ : Stmt} {Q : State → Prop}
     (h : Ends lim P d (s₁ ;; s₂) σ T Q) : Ends lim P d (s₁ ;; s₂) σ T Q :=
   h
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («seqSelf»)
 
 /-- A piece of the program about which `h` is known, followed by the rest of the program, which gets
 the steps that are left. -/
@@ -211,11 +241,15 @@ theorem Ends.pieceThen {σ : State} {T T₁ : ℕ} {s₁ s₂ : Stmt} {R Q : Sta
     (hT : T₁ ≤ T := by light_time) : Ends lim P d (s₁ ;; s₂) σ T Q :=
   Ends.next T₁ (h.mono le_rfl rest) hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («pieceThen»)
+
 /-- A piece of the program about which `h` is known, at the end of the program. -/
 theorem Ends.pieceLast {σ : State} {T T₁ : ℕ} {s : Stmt} {R Q : State → Prop}
     (h : Ends lim P d s σ T₁ R) (rest : ∀ σ', R σ' → Q σ') (hT : T₁ ≤ T := by light_time) :
     Ends lim P d s σ T Q :=
   h.mono hT rest
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («pieceLast»)
 
 /-- An assignment at the end of the program. -/
 theorem Ends.setLast {loc μ : ℕ → ℤ} {T x : ℕ} {e : Expr} {Q : State → Prop}
@@ -224,6 +258,8 @@ theorem Ends.setLast {loc μ : ℕ → ℤ} {T x : ℕ} {e : Expr} {Q : State �
     Ends lim P d (.set x e) ⟨loc, μ⟩ T Q :=
   Ends.set hs hT h
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setLast»)
+
 /-- An assignment, followed by the rest of the program. -/
 theorem Ends.setThen {loc μ : ℕ → ℤ} {T x : ℕ} {e : Expr} {s : Stmt} {Q : State → Prop}
     (h : Ends lim P d s ⟨Function.update loc x (e.val ⟨loc, μ⟩), μ⟩ (T - (e.cost + 1)) Q)
@@ -231,12 +267,16 @@ theorem Ends.setThen {loc μ : ℕ → ℤ} {T x : ℕ} {e : Expr} {s : Stmt} {Q
     Ends lim P d (.set x e ;; s) ⟨loc, μ⟩ T Q :=
   Ends.next _ (Ends.set hs le_rfl h) hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setThen»)
+
 /-- A store at the end of the program. -/
 theorem Ends.storeLast {loc μ : ℕ → ℤ} {T : ℕ} {a e : Expr} {Q : State → Prop}
     (h : Q ⟨loc, Function.update μ (a.val ⟨loc, μ⟩).toNat (e.val ⟨loc, μ⟩)⟩)
     (hs : a.Safe lim ⟨loc, μ⟩ ∧ e.Safe lim ⟨loc, μ⟩ ∧ lim.Addr (a.val ⟨loc, μ⟩) := by light_side)
     (hT : a.cost + e.cost + 1 ≤ T := by light_time) : Ends lim P d (.store a e) ⟨loc, μ⟩ T Q :=
   Ends.store hs.1 hs.2.1 hs.2.2 hT h
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («storeLast»)
 
 /-- A store, followed by the rest of the program. -/
 theorem Ends.storeThen {loc μ : ℕ → ℤ} {T : ℕ} {a e : Expr} {s : Stmt} {Q : State → Prop}
@@ -247,6 +287,8 @@ theorem Ends.storeThen {loc μ : ℕ → ℤ} {T : ℕ} {a e : Expr} {s : Stmt} 
     Ends lim P d (.store a e ;; s) ⟨loc, μ⟩ T Q :=
   Ends.next _ (Ends.storeLast h hs le_rfl) hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («storeThen»)
+
 /-- A branch at the end of the program: both sides get the steps that the test leaves. -/
 theorem Ends.iteLast {σ : State} {T : ℕ} {c : Cond} {s₁ s₂ : Stmt} {Q : State → Prop}
     (h₁ : c.Holds σ → Ends lim P d s₁ σ (T - (c.cost + 1)) Q)
@@ -254,6 +296,8 @@ theorem Ends.iteLast {σ : State} {T : ℕ} {c : Cond} {s₁ s₂ : Stmt} {Q : S
     (hs : c.Safe lim σ := by light_side) (hT : c.cost + 1 ≤ T := by light_time) :
     Ends lim P d (.ite c s₁ s₂) σ T Q :=
   Ends.ite _ hs h₁ h₂ (by omega)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («iteLast»)
 
 /-- A branch, followed by the rest of the program: each side, with the rest of the program behind
 it, gets the steps that the test leaves. -/
@@ -270,6 +314,8 @@ theorem Ends.iteThen {σ : State} {T : ℕ} {c : Cond} {s₁ s₂ s : Stmt} {Q :
     cases he with
     | seq he₁ he₂ => exact ⟨σ'', _, .seq (.iteFalse hs hc he₁) he₂, by omega, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («iteThen»)
+
 /-- A branch, followed by the rest of the program, where the test says `p`: the first side is run
 under the hypothesis `p`, the second under `¬ p`. -/
 theorem Ends.iteIffThen {σ : State} {T : ℕ} {c : Cond} {s₁ s₂ s : Stmt} {Q : State → Prop}
@@ -278,6 +324,8 @@ theorem Ends.iteIffThen {σ : State} {T : ℕ} {c : Cond} {s₁ s₂ s : Stmt} {
     (hs : c.Safe lim σ ∧ (c.Holds σ ↔ p) := by light_side)
     (hT : c.cost + 1 ≤ T := by light_time) : Ends lim P d (.ite c s₁ s₂ ;; s) σ T Q :=
   Ends.iteThen (fun hc => h₁ (hs.2.1 hc)) (fun hc => h₂ fun hp => hc (hs.2.2 hp)) hs.1 hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («iteIffThen»)
 
 /-! ## Loops whose body is a block -/
 
@@ -294,11 +342,15 @@ theorem Ends.whileBlock {σ : State} {c : Cond} {body : Stmt} {T : ℕ} {Q : Sta
     (fun j σ hj hI => ⟨(round j σ hj hI).1, (round j σ hj hI).2.1,
       Ends.block (round j σ hj hI).2.2 le_rfl⟩) done hT
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («whileBlock»)
+
 /-! ## Counting loops -/
 
 /-- for i = 0, …, hi - 1 do body. -/
 abbrev Stmt.for (i : ℕ) (hi : Expr) (body : Stmt) : Stmt :=
   .set i (k 0) ;; .while (v i <' hi) (body ;; .set i (v i +' k 1))
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («for»)
 
 /-- **Counting loops.**  I j is the invariant before round j.  The bound hi has the value n
 throughout, n fits in a word, and the body keeps the counter and takes at most b steps.  The rule
@@ -345,6 +397,8 @@ theorem Ends.for {σ : State} {i : ℕ} {hi : Expr} {body : Stmt} {T : ℕ} {Q :
     rw [hc, hv]
     exact lt_irrefl _
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («for»)
+
 /-- **Counting loops whose body changes no local variable.**  Before round j the local variables are
 the given ones with j in the counter, and I j holds of the memory.  The bound hi has the value n
 throughout, n fits in a word, and the body takes at most b steps. -/
@@ -369,6 +423,8 @@ theorem Ends.forMem {loc : ℕ → ℤ} {μ : ℕ → ℤ} {i : ℕ} {hi : Expr}
     exact done μ' hI
   · rintro j ⟨_, μ'⟩ hj - ⟨rfl, hI⟩
     exact bound j μ' hj hI
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («forMem»)
 
 end Light
 end

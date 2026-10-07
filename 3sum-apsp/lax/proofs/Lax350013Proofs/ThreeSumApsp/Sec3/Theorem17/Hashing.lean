@@ -130,15 +130,21 @@ S(a,b,c)". -/
 def IsFalsePositive (p : ℕ) (t : Fin n × Fin n × Fin n) : Prop :=
   T.S t.1 t.2.1 t.2.2 ≠ 0 ∧ (p : ℤ) ∣ T.S t.1 t.2.1 t.2.2
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («IsFalsePositive»)
+
 open Classical in
 /-- Proof of Theorem 17: "let F(p) denote the number of false positives of p". -/
 noncomputable def F (p : ℕ) : ℕ :=
   (Finset.univ.filter fun t : Fin n × Fin n × Fin n => T.IsFalsePositive p t).card
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («F»)
+
 open Classical in
 /-- Proof of Theorem 17: "Z₀, the number of zero triangles". -/
 noncomputable def Z₀ : ℕ :=
   (Finset.univ.filter fun t : Fin n × Fin n × Fin n => T.IsZeroTriangle t.1 t.2.1 t.2.2).card
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («Z₀»)
 
 /-- Proof of Theorem 17: "This number is the number of false positives F(p) plus Z₀, the number of
 zero triangles, which does not depend on p." -/
@@ -150,14 +156,20 @@ theorem countZeroMod_eq (p : ℕ) : T.countZeroMod p = T.F p + T.Z₀ := by
   by_cases h0 : T.S t.1 t.2.1 t.2.2 = 0 <;>
     simp [IsFalsePositive, IsZeroTriangle, Int.modEq_zero_iff_dvd, h0]
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («countZeroMod_eq»)
+
 /-- Proof of Theorem 17: "let P[a,c] := x^{w(a,c) mod p}", a matrix over `ℤ[x]/(x^p − 1)`.  `w mod
 p` is the residue in `{0, …, p − 1}`. -/
 noncomputable def matP (p : ℕ) : Matrix (Fin n) (Fin n) (CyclicRing p) :=
   Matrix.of fun a c => CyclicRing.x p ^ (T.wAC a c % (p : ℤ)).toNat
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («matP»)
+
 /-- Proof of Theorem 17: "and Q[c,b] := x^{w(b,c) mod p}". -/
 noncomputable def matQ (p : ℕ) : Matrix (Fin n) (Fin n) (CyclicRing p) :=
   Matrix.of fun c b => CyclicRing.x p ^ (T.wBC b c % (p : ℤ)).toNat
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («matQ»)
 
 /-- Proof of Theorem 17: "the coefficient of x^r in (PQ)[a,b] is the number of c ∈ C with w(a,c) +
 w(b,c) ≡ r (mod p)". -/
@@ -176,6 +188,8 @@ theorem coeff_matP_mul_matQ {p : ℕ} (hp : p ≠ 0) (a b : Fin n) (r : ℕ) (hr
   push_cast
   refine Finset.sum_congr rfl fun c _ => ?_
   simp only [eq_add_toNat_emod_iff hp hr]
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («coeff_matP_mul_matQ»)
 
 /-- Proof of Theorem 17: "then F(p) + Z₀ is the sum over the pairs (a,b) ∈ A × B of the coefficient
 of x^{−w(a,b) mod p} in (PQ)[a,b]". -/
@@ -209,6 +223,8 @@ theorem F_add_Z₀_eq_sum_coeff {p : ℕ} (hp : p ≠ 0) :
         simp only [S]; ring]
   simp only [hiff]
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («F_add_Z₀_eq_sum_coeff»)
+
 end TriangleInstance
 
 /-- Proof of Theorem 17: "the fewer than √D primes in the range". -/
@@ -240,6 +256,8 @@ theorem exists_isSelectedPrime (D : ℕ) (hD : 16 ≤ D) : ∃ p, T.IsSelectedPr
     Nat.exists_prime_half_le_and_lt (Real.sqrt D) (Real.four_le_sqrt_natCast_of_sixteen_le hD)
   exact Finset.exists_min_image (primesInRange D) T.countZeroMod ⟨q, mem_primesInRange.2 hq⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («exists_isSelectedPrime»)
+
 /-- Proof of Theorem 17: "We select the prime with the smallest count, which is also the prime with
 the fewest false positives". -/
 theorem IsSelectedPrime.F_le {T : TriangleInstance ℤ n} (hp : T.IsSelectedPrime D p) :
@@ -248,6 +266,8 @@ theorem IsSelectedPrime.F_le {T : TriangleInstance ℤ n} (hp : T.IsSelectedPrim
   have h := hp.2 q hq
   rw [countZeroMod_eq, countZeroMod_eq] at h
   omega
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance.IsSelectedPrime export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance.IsSelectedPrime («F_le»)
 
 /-! ### The bound on the number of false positives of the selected prime -/
 
@@ -260,6 +280,8 @@ theorem abs_S_le (hT : T.WeightsPolyBounded κ) (a b c : Fin n) :
       ≤ ((|T.wAB a b| : ℤ) : ℝ) + ((|T.wBC b c| : ℤ) : ℝ) + ((|T.wAC a c| : ℤ) : ℝ) := by
     exact_mod_cast habs
   linarith [hAB a b, hBC b c, hAC a c]
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («abs_S_le»)
 
 open Classical in
 /-- Proof of Theorem 17: "a triple with S(a,b,c) ≠ 0 is a false positive exactly of the primes in
@@ -294,6 +316,8 @@ theorem card_falsePositive_primes_le (hD : 16 ≤ D) (hT : T.WeightsPolyBounded 
   have hY : 0 < 3 * (n : ℝ) ^ κ := lt_of_lt_of_le (by positivity) (hpow.trans hprod)
   rw [Real.le_logb_iff_rpow_le (by linarith) hY, Real.rpow_natCast]
   exact hpow.trans hprod
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_falsePositive_primes_le»)
 
 /-- Proof of Theorem 17: "Hence the numbers of false positives of all the primes in the range add up
 to at most n³ log_{√D/2}(3n^ν)." -/
@@ -330,6 +354,8 @@ theorem sum_F_le (hD : 16 ≤ D) (hκ : 1 ≤ κ) (hT : T.WeightsPolyBounded κ)
         push_cast
         ring
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («sum_F_le»)
+
 end TriangleInstance
 
 /-- Proof of Theorem 17: "By the prime number theorem there are Ω(√D/log D) primes in the range".
@@ -350,6 +376,8 @@ theorem TriangleInstance.IsSelectedPrime.F_mul_card_le_sum {n D p : ℕ} {T : Tr
     T.F p * (primesInRange D).card ≤ ∑ q ∈ primesInRange D, T.F q := by
   rw [mul_comm, ← smul_eq_mul]
   exact Finset.card_nsmul_le_sum _ _ _ hp.F_le
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance.IsSelectedPrime export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance.IsSelectedPrime («F_mul_card_le_sum»)
 
 /-- Proof of Theorem 17: "log D = O(log(√D/2)) for D ≥ 16". -/
 theorem log_le_four_mul_log_sqrt_div_two (D : ℕ) (hD : 16 ≤ D) :
@@ -401,6 +429,8 @@ theorem TriangleInstance.F_le_of_le_card_primesInRange {n D p : ℕ} {κ c : ℝ
     _ ≤ (n : ℝ) ^ 3 * (4 * Real.log Y / Real.log D) * Real.log D := by gcongr
     _ = 4 * (n : ℝ) ^ 3 * Real.log Y := by field_simp
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («F_le_of_le_card_primesInRange»)
+
 /-- Proof of Theorem 17: "F(p) = O(n³ log(3n^ν)/√D) = O(ν n³ log n/√D)". -/
 theorem TriangleInstance.exists_F_le :
     ∃ C : ℝ, 1 ≤ C ∧ ∀ {n D p : ℕ} {κ : ℝ}, 16 ≤ D → D ≤ n → 1 ≤ κ → ∀ T : TriangleInstance ℤ n,
@@ -423,6 +453,8 @@ theorem TriangleInstance.exists_F_le :
     _ ≤ max 1 (8 / c) * (κ * (n : ℝ) ^ 3 * Real.log n / Real.sqrt D) := by
         gcongr
         exact le_max_right _ _
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («exists_F_le»)
 
 /-- A name for the constant in "F(p) = [...] = O(ν n³ log n/√D)", for the bounds on running times
 that are built on this one. -/

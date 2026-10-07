@@ -8,6 +8,8 @@ from pathlib import Path
 import re
 import argparse
 from functools import lru_cache
+from procedure_concepts import (CALLABLES, generate as generate_procedure_concepts,
+                                declarations, method_aliases)
 
 ROOT = Path(__file__).resolve().parent
 UP = ROOT.parent
@@ -55,11 +57,11 @@ def mask_comments(text):
 
 def decl_span(text, name):
     masked = mask_comments(text)
-    pat = r'(?m)^(?:(?:noncomputable|private|protected) )*(?:def|abbrev|structure|inductive|theorem|lemma) ' + re.escape(name) + r'(?=[\s:{(])'
+    pat = r'(?m)^(?:@\[[^\n]*\] )?(?:(?:noncomputable|private|protected) )*(?:def|abbrev|structure|inductive|theorem|lemma) ' + re.escape(name) + r'(?=[\s:{(])'
     m = re.search(pat, masked)
     if not m:
         raise ValueError(f'missing declaration: {name}')
-    following = re.search(r'(?m)^(?:@\[|(?:noncomputable|private|protected) |def |abbrev |structure |inductive |theorem |lemma |instance |namespace |end\b|section |open |attribute |set_option )', masked[m.end():])
+    following = re.search(r'(?m)^(?:@\[|(?:noncomputable|private|protected) |def |abbrev |structure |inductive |theorem |lemma |instance |namespace |end\b|section\b|open |export |attribute |set_option |variable |local |scoped |notation |macro |syntax )', masked[m.end():])
     end = m.end() + following.start() if following else len(text)
     # Remove the docstrings and section comments introducing the next command.
     tail = text[m.start():end].rstrip()
@@ -116,17 +118,27 @@ concepts = []
 targets = {}
 
 
-def concept(name, title, description, imports, code, claims=(), math=True, opens=()):
+def concept(name, title, description, imports, code, claims=(), math=True, opens=(),
+            origin='EndStatement.lean / PaperStatements.lean'):
+    callable_claims = [item for item in CALLABLES if item[1] == name]
+    if callable_claims:
+        imports = [*imports, 'CallableAlgorithms']
+        # Keep existing names unambiguous: qualify the new statement types.
+        description += (' The callable versions also preserve memory and resource guarantees '
+                        'needed when these algorithms are used as subroutines.')
     path = ROOT / 'concepts' / C / (name + '.lean')
     path.parent.mkdir(parents=True, exist_ok=True)
     imp = (MATH + '\n' if math else '') + ''.join(f'import {C}.{x}\n' for x in imports)
     opening = ('open Finset\n' if math else '') + ''.join(f'open {C}.{x}\n' for x in opens)
-    annotation = f'/-!\n---\ntitle: {title}\ntype: {"theorem" if claims else "definition"}\n---\n{description}\n-/\n'
+    annotation = f'/-!\n---\ntitle: {title}\ntype: {"theorem" if claims or callable_claims else "definition"}\n---\n{description}\n-/\n'
     body = core_refs(code)
     for statement, proof in claims:
         body += f'\n\n/-- {title}: {statement.replace("_", " ")}. -/\naxiom {proof} : {statement}\n'
         targets[statement] = (name, proof)
-    text = notice('EndStatement.lean / PaperStatements.lean') + '\n' + imp + '\n' + annotation
+    for source, _, axiom, statement in callable_claims:
+        body += f'\n\n/-- Callable contract proved by upstream `{source}`. -/\n'
+        body += f'axiom {axiom} : {callable_type(statement)}\n'
+    text = notice(origin) + '\n' + imp + '\n' + annotation
     text += f'\nnamespace {C}.{name}\n\n' + opening + '\n' + body.strip() + f'\n\nend {C}.{name}\n'
     write(path, text)
     concepts.append(name)
@@ -134,6 +146,11 @@ def concept(name, title, description, imports, code, claims=(), math=True, opens
 
 def ds(source, names):
     return '\n\n'.join(decl(source, n) for n in names.split())
+
+
+def callable_type(statement):
+    return re.sub(r'(?<![\w.])(?:Claim\.\w+|lightModel|strassen|paramD₅|paramG₅|paramD₂₆|paramG₂₆)',
+                  lambda m: f'{C}.CallableAlgorithms.{m[0]}', statement)
 
 
 concept('WordRAM', 'A word RAM with signed addresses',
@@ -295,6 +312,9 @@ concept('HintedAlgorithms', 'Improved algorithms with thin hints',
     [('Corollary_40_times','explicitTimes'), ('Corollary_40_general_times','generalTimes'),
      ('Theorem_4','theorem4')], opens=['WordRAM','RAMResources','ThinMatrices','HintedMatrixVector','MatrixParameters'])
 
+shared_procedures = generate_procedure_concepts(UP, PAPER, concept, ds, decl, mask_comments, C)
+concept_names = {name for path in (ROOT / 'concepts' / C).glob('*.lean')
+                 for name, _ in declarations(path.read_text(), mask_comments)}
 write(ROOT / 'concepts' / (C + '.lean'), ''.join(f'import {C}.{x}\n' for x in sorted(concepts)))
 
 
@@ -308,6 +328,10 @@ assumption_modules = {
     name: re.search(r'from (Lax350013\.\w+)\.', term)[1]
     for name, term in named_assumptions.items()
 }
+for source, module, axiom, _ in CALLABLES:
+    name = source.rsplit('.', 1)[1]
+    named_assumptions[name] = f'{C}.{module}.{axiom}'
+    assumption_modules[name] = f'{C}.{module}'
 
 
 def concept_dependencies(body):
@@ -321,7 +345,7 @@ def concept_dependencies(body):
     declared = {m.span(1) for m in re.finditer(
         r'(?m)^(?:(?:noncomputable|private|protected) )*'
         r'(?:def|abbrev|theorem|lemma|axiom) (\w+)', masked)}
-    pattern = r'(?<![\w.])(?:ThreeSumApsp\.)?(' + '|'.join(
+    pattern = r'(?<![\w.])(?:(?:ThreeSumApsp\.)|(?:(?:Light\.)?Sec[234]\.))?(' + '|'.join(
         map(re.escape, sorted(named_assumptions, key=len, reverse=True))) + r')(?!\w)'
     replacements = [m for m in re.finditer(pattern, masked) if m.span(1) not in declared]
     for match in reversed(replacements):
@@ -356,10 +380,39 @@ def adapt(text, origin, extra_imports=()):
         body = body.replace('/-!', '/-')
     body = body.replace('@[expose] ', '').replace('public section', 'section')
     body = body.replace('_root_.Light', f'_root_.{P}.Light').replace('_root_.ThreeSumApsp', f'_root_.{P}.ThreeSumApsp')
+    if origin == 'ThreeSumApsp/Lang/Compiler/StatementCode.lean':
+        # Recursive calls must use the local function until its alias on the
+        # concept type can be installed after the declaration.
+        for name, variables, arg in [
+            (f'_root_.{P}.Light.Expr.size', 'ab', ''),
+            (f'_root_.{P}.Light.Stmt.size', 'st', 'F'),
+            ('Expr.vars', 'ab', ''), ('Expr.height', 'ab', ''), ('Stmt.width', 'st', ''),
+        ]:
+            a, b = decl_span(body, name)
+            method = name.rsplit('.', 1)[1]
+            pattern = r'\b([' + variables + r'])\.' + method + r'\b' + (r' F\b' if arg else '')
+            call_name = '.'.join(name.split('.')[-2:])
+            fragment = re.sub(pattern, lambda m: f'({call_name} {arg} {m[1]})', body[a:b])
+            body = body[:a] + fragment + body[b:]
+    if origin == 'ThreeSumApsp/Lang/Rules.lean':
+        for method, arg in [('after', ''), ('blockCost', ''), ('BlockSafe', 'lim')]:
+            name = f'Stmt.{method}'
+            a, b = decl_span(body, name)
+            pattern = r'\b([st])\.' + method + r'\b' + (r' lim\b' if arg else '')
+            fragment = re.sub(pattern, lambda m: f'({name} {arg} {m[1]})', body[a:b])
+            body = body[:a] + fragment + body[b:]
+    for file, method, arg in [('Renumber', 'shift', 'n'), ('Assigns', 'assigns', '')]:
+        if origin == f'ThreeSumApsp/Lang/{file}.lean':
+            name = f'Stmt.{method}'
+            a, b = decl_span(body, name)
+            pattern = r'\b([st])\.' + method + r'\b' + (r' n\b' if arg else '')
+            fragment = re.sub(pattern, lambda m: f'({name} {arg} {m[1]})', body[a:b])
+            body = body[:a] + fragment + body[b:]
     body = body.replace('S.card_filter_div_eq_le', '(Finset.card_filter_div_eq_le S)')
     body = body.replace('Finset.univ.card_filter_div_eq_le', '(Finset.card_filter_div_eq_le Finset.univ)')
     body, concept_imports = concept_dependencies(body)
     imports += ['import ' + mod for mod in concept_imports]
+    body = method_aliases(body, mask_comments, concept_names, C, P)
     # Mathlib namespace extensions must retain access to the root namespace.
     for ns in ['Finset', 'Nat', 'Int', 'Real', 'List']:
         body = re.sub(r'(?m)^namespace ' + ns + r'$', 'namespace ' + ns + '\n\nopen _root_.' + ns, body)
@@ -390,6 +443,14 @@ def replace_decl(text, name, replacement):
     return prefix + replacement + text[b:]
 
 
+def share_procedures(text, origin):
+    imports = set()
+    for name, replacement in shared_procedures.get(origin, []):
+        text = replace_decl(text, name, replacement)
+        imports.add(re.search(r'Lax350013\.\w+', replacement)[0])
+    return text, sorted(imports)
+
+
 end_proof = replace_decl(END, 'Instr', f'export {C}.WordRAM (Instr)')
 end_proof = replace_decl(end_proof, 'exec', f'export {C}.WordRAM (exec)')
 end_proof = replace_decl(end_proof, 'Path', f'abbrev Path := @{C}.APSP.Path')
@@ -400,7 +461,8 @@ paper_proof = replace_decl(PAPER, 'ThinPair', f'abbrev ThinPair := {C}.ThinMatri
 paper_proof = replace_decl(paper_proof, 'ThinInstance', f'abbrev ThinInstance := {C}.ThinMatrices.ThinInstance')
 for shared in ['Serves', 'RunsPhases']:
     paper_proof = replace_decl(paper_proof, shared, f'export {C}.RAMResources ({shared})')
-write(proof_dir / 'UpstreamPaperStatements.lean', adapt(paper_proof, 'PaperStatements.lean', [C+'.ThinMatrices']))
+paper_proof, shared_imports = share_procedures(paper_proof, 'PaperStatements.lean')
+write(proof_dir / 'UpstreamPaperStatements.lean', adapt(paper_proof, 'PaperStatements.lean', [C+'.ThinMatrices', *shared_imports]))
 upstream_files = {'.'.join(p.relative_to(UP).with_suffix('').parts): p
                   for p in (UP / 'ThreeSumApsp').rglob('*.lean')}
 reachable = set()
@@ -422,7 +484,8 @@ for mod, source in sorted(upstream_files.items()):
             dest.unlink()
         continue
     dest.parent.mkdir(parents=True, exist_ok=True)
-    write(dest, adapt(source.read_text(), str(rel)))
+    text, shared_imports = share_procedures(source.read_text(), str(rel))
+    write(dest, adapt(text, str(rel), shared_imports))
 
 # Certificates use the original proofs, whose exposed theorem dependencies now
 # go through concepts throughout the library, including intermediate helpers.
@@ -431,16 +494,14 @@ proof_sources = {p: p.read_text() for p in (UP / 'ThreeSumApsp').rglob('*.lean')
 
 
 def certificate_body(proof):
-    # Expose genuine direct uses of other certified machine-level statements.
-    # Procedure-level reductions remain fully proved inside the upstream library.
+    # Expose direct uses of other certified statements in the short wrappers.
     if proof.startswith('endStatement_') or proof in {'wordRam_theorem_1', 'wordRam_theorem_2',
                                                      'wordRam_theorem_3', 'wordRam_theorem_4'}:
         for text in proof_sources.values():
             if re.search(r'(?m)^theorem ' + re.escape(proof) + r'\s*:', text):
                 a, b = decl_span(text, proof)
                 body = text[a:b].split(':=', 1)[1].strip()
-                for original, assumed in named_assumptions.items():
-                    body = re.sub(r'\b' + re.escape(original) + r'\b', lambda _: assumed, body)
+                body, _ = concept_dependencies(body)
                 # The conclusion uses the concept's identical named constant.
                 body = body.replace('[EndStatement.ε_T]',
                                     f'[EndStatement.ε_T, {C}.ExactTriangle.ε_T]')
@@ -461,6 +522,11 @@ for statement, (module, axiom) in targets.items():
         continue
     proof = 'wordRam_' + statement[0].lower() + statement[1:]
     certificates.append(f'/--\n---\nconclusion: {C}.{module}.{axiom}\n---\nThe corresponding upstream theorem about programs of the word RAM. Direct uses of other exposed machine-level statements appear as proof-network dependencies.\n-/\ntheorem lax_{proof} : {C}.{module}.{statement} :=\n  {certificate_body(proof)}')
+for source, module, axiom, statement in CALLABLES:
+    certificates.append(f'/--\n---\nconclusion: {C}.{module}.{axiom}\n---\n'
+                        'The original upstream proof of the callable contract. Its uses of other exposed '
+                        'contracts go through concept statements.\n-/\n'
+                        f'theorem lax_{axiom} : {callable_type(statement)} :=\n  _root_.{P}.{source}')
 cert = 'import '+C+'\nimport '+P+'.ThreeSumApsp.Statements.Exponents\nimport '+P+'.ThreeSumApsp.RunningTimes\n\n'
 cert += f'namespace {P}.ThreeSumApsp\n\nopen WordRam\n\n' + '\n\n'.join(certificates) + f'\n\nend {P}.ThreeSumApsp\n'
 write(proof_dir / 'Certificates.lean', notice('ThreeSumApsp/Statements and RunningTimes') + '\n' + cert)

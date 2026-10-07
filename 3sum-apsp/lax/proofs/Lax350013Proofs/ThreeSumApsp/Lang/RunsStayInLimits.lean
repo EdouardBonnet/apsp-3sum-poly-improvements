@@ -57,6 +57,8 @@ theorem Expr.abs_val_le {σ : State} (hσ : σ.Bounded lim) :
   | .op _ _ _, h => h.2.2
   | .load _, _ => hσ.2 _
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («abs_val_le»)
+
 /-- A frame that holds words, over a memory that holds words, is a bounded state. -/
 theorem bounded_frame {args : List ℤ} {μ : ℕ → ℤ} (hargs : ∀ v ∈ args, |v| ≤ lim.word)
     (hμ : ∀ a, |μ a| ≤ lim.word) : State.Bounded lim ⟨frame args, μ⟩ :=
@@ -86,6 +88,8 @@ theorem Exec.bounded {s : Stmt} {σ σ' : State} {c : ℕ} (h : Exec lim P d s �
     have hbody := ih (bounded_callFrame hσ _ ha)
     exact ⟨abs_update_le hσ.1 (hbody.1 0) _, hbody.2⟩
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Exec export _root_.Lax350013Proofs.Light.Exec («bounded»)
+
 /-- A run does not change the cells from lim.space on. -/
 theorem Exec.mem_outside {s : Stmt} {σ σ' : State} {c : ℕ} (h : Exec lim P d s σ σ' c) (a : ℕ)
     (ha : lim.space ≤ a) : σ'.mem a = σ.mem a := by
@@ -101,6 +105,8 @@ theorem Exec.mem_outside {s : Stmt} {σ σ' : State} {c : ℕ} (h : Exec lim P d
   | whileFalse _ _ => rfl
   | whileTrue _ _ _ _ ih₁ ih₂ => rw [ih₂, ih₁]
   | call _ _ _ _ ih => exact ih
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Exec export _root_.Lax350013Proofs.Light.Exec («mem_outside»)
 
 end Light
 end

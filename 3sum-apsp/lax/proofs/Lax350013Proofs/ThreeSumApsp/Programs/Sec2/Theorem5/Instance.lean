@@ -106,14 +106,20 @@ variable {i : ℕ}
 theorem _root_.Lax350013Proofs.Light.ThinInst.Pre.lt_lenWI (hpre : x.Pre μ fr) (hi : i < x.w) : i < x.WI.length :=
   hi.trans_eq hpre.lenWI.symm
 
+with_weak_namespace _root_.Lax350013.CallableProblems export _root_.Lax350013Proofs.Light (ThinInst.Pre.«lt_lenWI»)
+
 /-- A number of a wanted position is an index of the list of the columns. -/
 theorem _root_.Lax350013Proofs.Light.ThinInst.Pre.lt_lenWJ (hpre : x.Pre μ fr) (hi : i < x.w) : i < x.WJ.length :=
   hi.trans_eq hpre.lenWJ.symm
+
+with_weak_namespace _root_.Lax350013.CallableProblems export _root_.Lax350013Proofs.Light (ThinInst.Pre.«lt_lenWJ»)
 
 /-- A number of a wanted position is an index of the list of the positions. -/
 theorem _root_.Lax350013Proofs.Light.ThinInst.Pre.lt_lenZip (hpre : x.Pre μ fr) (hi : i < x.w) :
     i < (x.WI.zip x.WJ).length := by
   simp [hpre.lenWI, hpre.lenWJ, hi]
+
+with_weak_namespace _root_.Lax350013.CallableProblems export _root_.Lax350013Proofs.Light (ThinInst.Pre.«lt_lenZip»)
 
 theorem thinI_eq (h : i < x.WI.length) : thinI x i = x.WI[i] := List.getD_eq_getElem _ _ h
 

@@ -63,6 +63,8 @@ theorem scanPiece_eq_some {k : ℕ} {a b c : Fin n} (h : T.scanPiece D g k a b =
   rw [List.mem_filter] at hmem
   exact ⟨by simpa using hmem.2, by simpa using List.find?_some h⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («scanPiece_eq_some»)
+
 /-- A scan fails exactly if the piece has no `c` with `S(a,b,c) = 0`. -/
 theorem scanPiece_eq_none_iff {k : ℕ} {a b : Fin n} :
     T.scanPiece D g k a b = none ↔ ∀ c ∈ piece n D g k, T.S a b c ≠ 0 := by
@@ -70,12 +72,16 @@ theorem scanPiece_eq_none_iff {k : ℕ} {a b : Fin n} :
   rw [List.find?_eq_none]
   simp [List.mem_filter]
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («scanPiece_eq_none_iff»)
+
 variable (T) (D g)
 
 /-- The scan that belongs to `x = ((ϱ, j, k), (a, b))`, a query pair `(a, b)` of the instance with
 index `(ϱ, j, k)`: the piece `C_k` is scanned for the pair `(a, b)`. -/
 noncomputable abbrev scanOf (x : InstanceIndex p × (Fin n × Fin n)) : Option (Fin n) :=
   T.scanPiece D g x.1.2.2 x.2.1 x.2.2
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («scanOf»)
 
 /-- What the scans over a list of pairs return: a triangle that is returned is a zero triangle; if
 none is returned, then every scan failed; and all the scans that are carried out, except possibly
@@ -109,6 +115,8 @@ private theorem runScans_spec (l : List (InstanceIndex p × (Fin n × Fin n))) :
       · exact hscan
       · exact ihnone h y hy
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («runScans_spec»)
+
 variable (p) (ans : InstanceIndex p → Fin n × Fin n → Bool)
 
 /-- The hypothesis on the oracle: `ans ι` is a correct answer to the instance with index `ι`, for
@@ -116,10 +124,14 @@ every instance of the reduction. -/
 def IsOracleAnswer : Prop :=
   ∀ ι ∈ T.instanceIndices D g p, (T.lopInstance D g p ι).IsDetectionAnswer (ans ι)
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («IsOracleAnswer»)
+
 /-- Proof of Theorem 17: a "failed scan, of a piece C_k for a pair (a,b)": the oracle accepted the
 pair in the instance, and the piece contains no `c` with `S(a,b,c) = 0`. -/
 noncomputable def failedScans : Finset (InstanceIndex p × (Fin n × Fin n)) :=
   (T.acceptedPairs D g p ans).filter fun x => T.scanOf D g x = none
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («failedScans»)
 
 variable {T D g p ans}
 
@@ -129,6 +141,8 @@ theorem mem_acceptedPairs {ι : InstanceIndex p} {q : Fin n × Fin n} :
     (ι, q) ∈ T.acceptedPairs D g p ans ↔
       ι ∈ T.instanceIndices D g p ∧ q ∈ (T.lopInstance D g p ι).W ∧ ans ι q = true := by
   simp [acceptedPairs]
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («mem_acceptedPairs»)
 
 /-! ### The sentences of the paragraph "Witnesses" -/
 
@@ -150,6 +164,8 @@ theorem exists_mem_acceptedPairs (hD : 16 ≤ D) (hDn : D ≤ n) (hg1 : 1 ≤ g)
   rw [hans _ hι _ hquery, T.inTriangle_lopInstance_iff hp hquery]
   exact ⟨c, hck, by rw [show T.S a b c = 0 from h0]⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («exists_mem_acceptedPairs»)
+
 /-- Proof of Theorem 17: "A failed scan, of a piece C_k for a pair (a,b), contains a c ∈ C_k with
 S(a,b,c) ≡ 0 (mod p) but S(a,b,c) ≠ 0, that is, a false positive (a,b,c) of p". -/
 theorem exists_isFalsePositive_of_mem_failedScans (hp : p ≠ 0) (hans : T.IsOracleAnswer D g p ans)
@@ -159,6 +175,8 @@ theorem exists_isFalsePositive_of_mem_failedScans (hp : p ≠ 0) (hans : T.IsOra
   obtain ⟨hι, hquery, htrue⟩ := mem_acceptedPairs.mp hacc
   obtain ⟨c, hc, hS⟩ := (T.inTriangle_lopInstance_iff hp hquery).mp ((hans _ hι _ hquery).mp htrue)
   exact ⟨c, hc, scanPiece_eq_none_iff.mp hnone c hc, Int.modEq_zero_iff_dvd.mp hS⟩
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («exists_isFalsePositive_of_mem_failedScans»)
 
 /-- Proof of Theorem 17: "distinct scans contain distinct false positives": a triple `(a,b,c)`
 belongs to the scan of at most one accepted pair. -/
@@ -177,6 +195,8 @@ theorem eq_of_mem_acceptedPairs {ϱ ϱ' : Fin p} {j j' k k' : ℕ} {q : Fin n ×
   obtain rfl : k = k' := ((mem_piece c).mp hc).symm.trans ((mem_piece c).mp hc')
   rfl
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («eq_of_mem_acceptedPairs»)
+
 /-- Proof of Theorem 17: "distinct scans contain distinct false positives, so there are at most F(p)
 failed scans", for any finite family `s` of scans and any notion "the scan `x` contains the triple
 `t`".  The scans of the accepted pairs (`card_failedScans_le`) and the scans of the program
@@ -192,6 +212,8 @@ theorem card_le_F_of_distinct_scans (T : TriangleInstance ℤ n) {σ : Type*} (s
   obtain ⟨t, ht, hfp⟩ := hfalse x hx
   exact ⟨t, Finset.mem_filter.mpr ⟨Finset.mem_univ _, hfp⟩, ht⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_le_F_of_distinct_scans»)
+
 /-- Proof of Theorem 17: "so there are at most F(p) failed scans". -/
 theorem card_failedScans_le (hp : p ≠ 0) (hans : T.IsOracleAnswer D g p ans) :
     (T.failedScans D g p ans).card ≤ T.F p := by
@@ -203,6 +225,8 @@ theorem card_failedScans_le (hp : p ≠ 0) (hans : T.IsOracleAnswer D g p ans) :
     exact ⟨(a, b, c), ⟨rfl, hc⟩, hfalse⟩
   · rintro ⟨a, b, c⟩ ⟨⟨ϱ, j, k⟩, q⟩ hx ⟨⟨ϱ', j', k'⟩, q'⟩ hy ⟨rfl, hc⟩ ⟨rfl, hc'⟩
     rw [eq_of_mem_acceptedPairs (Finset.mem_filter.mp hx).1 (Finset.mem_filter.mp hy).1 hc hc']
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_failedScans_le»)
 
 end TriangleInstance
 
@@ -243,6 +267,8 @@ theorem TriangleInstance.F_add_one_mul_pieceSize_le {κ : ℝ} (T : TriangleInst
     _ = (2 * ((T.F p : ℝ) * Real.sqrt D) + 2 * Real.sqrt D) / (g : ℝ) := by ring
     _ ≤ (2 * (Hashing.falsePositiveConst * B) + 2 * B) / (g : ℝ) := by gcongr
     _ = (2 * Hashing.falsePositiveConst + 2) * (B / (g : ℝ)) := by ring
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («F_add_one_mul_pieceSize_le»)
 
 /-! ### The output of the reduction -/
 

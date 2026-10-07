@@ -1,4 +1,7 @@
 import Lax350013.APSP
+import Lax350013.AlgorithmReductions
+import Lax350013.CallableAlgorithms
+import Lax350013.CallableProblems
 import Lax350013.CliqueOptimization
 import Lax350013.ExactTriangle
 import Lax350013.HintedAlgorithms
@@ -11,8 +14,10 @@ import Lax350013.MatrixPreprocessing
 import Lax350013.MatrixTradeoffs
 import Lax350013.MinPlusProduct
 import Lax350013.PolynomialTime
+import Lax350013.ProcedureContracts
 import Lax350013.RAMResources
 import Lax350013.SparseMatrixProduct
+import Lax350013.StructuredPrograms
 import Lax350013.ThinMatrices
 import Lax350013.ThreeSUM
 import Lax350013.WeightedCliqueAlgorithms

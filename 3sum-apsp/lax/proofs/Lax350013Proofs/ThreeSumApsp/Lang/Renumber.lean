@@ -39,13 +39,17 @@ def Stmt.shift (n : ℕ) : Stmt → Stmt
   | .skip => .skip
   | .set x e => .set x e
   | .store a e => .store a e
-  | .seq s t => .seq (s.shift n) (t.shift n)
-  | .ite c s t => .ite c (s.shift n) (t.shift n)
-  | .while c s => .while c (s.shift n)
+  | .seq s t => .seq ((Stmt.shift n s)) ((Stmt.shift n t))
+  | .ite c s t => .ite c ((Stmt.shift n s)) ((Stmt.shift n t))
+  | .while c s => .while c ((Stmt.shift n s))
   | .call p args x => .call (p + n) args x
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («shift»)
 
 /-- The program P placed behind the program Q. -/
 def Program.behind (Q P : Program) : Program := Q ++ P.map (Stmt.shift Q.length)
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Program export _root_.Lax350013Proofs.Light.Program («behind»)
 
 /-- Procedure p of P is procedure `p + Q.length` of P placed behind Q, with its calls
 shifted. -/
@@ -54,6 +58,8 @@ theorem Program.getElem?_behind_right (Q : Program) {p : ℕ} {body : Stmt} (h :
   rw [Program.behind, List.getElem?_append_right (Nat.le_add_left _ _), Nat.add_sub_cancel,
     List.getElem?_map, h]
   rfl
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Program export _root_.Lax350013Proofs.Light.Program («getElem?_behind_right»)
 
 /-- **Relocation.**  A run in P is a run, with the same states and the same number of steps, of
 the shifted statement in P placed behind Q. -/
@@ -70,6 +76,8 @@ theorem Exec.shift {s : Stmt} {σ σ' : State} {c : ℕ} (h : Exec lim P d s σ 
   | whileTrue h₁ h₂ _ _ ih₁ ih₂ => exact .whileTrue h₁ h₂ ih₁ ih₂
   | call h₁ h₂ h₃ _ ih => exact .call h₁ (Program.getElem?_behind_right Q h₂) h₃ ih
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Exec export _root_.Lax350013Proofs.Light.Exec («shift»)
+
 /-- What is proved about a statement in P holds for the shifted statement in P placed behind
 Q. -/
 theorem Ends.shift {s σ T post} (h : Ends lim P d s σ T post) (Q : Program) :
@@ -77,10 +85,14 @@ theorem Ends.shift {s σ T post} (h : Ends lim P d s σ T post) (Q : Program) :
   obtain ⟨σ', c, he, hc, hq⟩ := h
   exact ⟨σ', c, he.shift Q, hc, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («shift»)
+
 /-- The same with more procedures appended behind. -/
 theorem Ends.shift_append {s σ T post} (h : Ends lim P d s σ T post) (Q R : Program) :
     Ends lim (Program.behind Q P ++ R) d (s.shift Q.length) σ T post :=
   (h.shift Q).append R
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («shift_append»)
 
 end Light
 end

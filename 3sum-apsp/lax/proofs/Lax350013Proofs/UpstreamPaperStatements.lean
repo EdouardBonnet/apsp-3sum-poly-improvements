@@ -24,6 +24,7 @@ import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Tactic.DeriveFintype
 import Lax350013.ThinMatrices
+import Lax350013.CallableProblems
 
 namespace Lax350013Proofs
 
@@ -886,38 +887,30 @@ noncomputable def queryCap (n D : ℕ) : ℕ := ⌊(n : ℝ) ^ 2 / Real.sqrt D�
 
 /- ### 3.2 A deterministic reduction from Exact Triangle to Lop-AE-SparseTri -/
 
-/-- Section 3.2: "An instance of Exact Triangle [...] consists of a complete tripartite graph on
+/- Section 3.2: "An instance of Exact Triangle [...] consists of a complete tripartite graph on
 vertex parts A, B, C of n vertices each, and an integer weight w(e) on every edge".  The three
 fields are the weights `w(a,b)`, `w(b,c)` and `w(a,c)`.  The type `R` of the weights is `ℤ` in
 Section 3; Section 5 also uses real weights.  The bound on the weights is a separate predicate
 (`WeightsBoundedBy`, `WeightsPolyBounded`). -/
-structure TriangleInstance (R : Type) (n : ℕ) where
-  /-- `wAB a b` is the weight `w(a,b)` of the edge between `a ∈ A` and `b ∈ B`. -/
-  wAB : Fin n → Fin n → R
-  /-- `wBC b c` is the weight `w(b,c)` of the edge between `b ∈ B` and `c ∈ C`. -/
-  wBC : Fin n → Fin n → R
-  /-- `wAC a c` is the weight `w(a,c)` of the edge between `a ∈ A` and `c ∈ C`. -/
-  wAC : Fin n → Fin n → R
+export Lax350013.CallableProblems (TriangleInstance TriangleInstance.mk TriangleInstance.wAB TriangleInstance.wBC TriangleInstance.wAC)
 
 namespace TriangleInstance
 
-/-- Section 3.2: "Let S(a,b,c) := w(a,b) + w(b,c) + w(a,c)." -/
-def S {R : Type} [Add R] {n : ℕ} (T : TriangleInstance R n) (a b c : Fin n) : R :=
-  T.wAB a b + T.wBC b c + T.wAC a c
+/- Section 3.2: "Let S(a,b,c) := w(a,b) + w(b,c) + w(a,c)." -/
+export Lax350013.CallableProblems.TriangleInstance (S)
 
-/-- Section 3.2: "A zero triangle is a triangle (a,b,c) ∈ A × B × C with S(a,b,c) = 0". -/
-def IsZeroTriangle {R : Type} [Add R] [Zero R] {n : ℕ} (T : TriangleInstance R n) (a b c : Fin n) :
-    Prop :=
-  T.S a b c = 0
+/- Section 3.2: "A zero triangle is a triangle (a,b,c) ∈ A × B × C with S(a,b,c) = 0". -/
+export Lax350013.CallableProblems.TriangleInstance (IsZeroTriangle)
 
-/-- Section 3.2: "the task is to decide whether one exists". -/
-def HasZeroTriangle {R : Type} [Add R] [Zero R] {n : ℕ} (T : TriangleInstance R n) : Prop :=
-  ∃ a b c : Fin n, T.IsZeroTriangle a b c
+/- Section 3.2: "the task is to decide whether one exists". -/
+export Lax350013.CallableProblems.TriangleInstance (HasZeroTriangle)
 
 /-- Every weight has absolute value at most `U`. -/
 def WeightsBoundedBy {R : Type} [Lattice R] [AddGroup R] {n : ℕ} (T : TriangleInstance R n)
     (U : R) : Prop :=
   (∀ a b, |T.wAB a b| ≤ U) ∧ (∀ b c, |T.wBC b c| ≤ U) ∧ (∀ a c, |T.wAC a c| ≤ U)
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («WeightsBoundedBy»)
 
 /-- Section 3.2: "with |w(e)| ≤ n^ν for some constant ν ≥ 1".  `κ`, the paper's ν, is a real
 number. -/
@@ -925,12 +918,16 @@ def WeightsPolyBounded {n : ℕ} (T : TriangleInstance ℤ n) (κ : ℝ) : Prop 
   (∀ a b, ((|T.wAB a b| : ℤ) : ℝ) ≤ (n : ℝ) ^ κ) ∧ (∀ b c, ((|T.wBC b c| : ℤ) : ℝ) ≤ (n : ℝ) ^ κ) ∧
     (∀ a c, ((|T.wAC a c| : ℤ) : ℝ) ≤ (n : ℝ) ^ κ)
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («WeightsPolyBounded»)
+
 /-- A correct answer to the search version, Section 3.2: "the search version, which asks the
 algorithm to find a zero triangle if one exists".  `some (a, b, c)` must be a zero triangle, and
 `none` means that there is none. -/
 def IsSearchAnswer {R : Type} [Add R] [Zero R] {n : ℕ} (T : TriangleInstance R n)
     (r : Option (Fin n × Fin n × Fin n)) : Prop :=
   (∀ a b c, r = some (a, b, c) → T.IsZeroTriangle a b c) ∧ (r = none → ¬ T.HasZeroTriangle)
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («IsSearchAnswer»)
 
 end TriangleInstance
 
@@ -955,11 +952,15 @@ p)."  This is that count. -/
 def countZeroMod {n : ℕ} (T : TriangleInstance ℤ n) (p : ℕ) : ℕ :=
   (Finset.univ.filter fun ((a, b, c) : Fin n × Fin n × Fin n) => T.S a b c ≡ 0 [ZMOD (p : ℤ)]).card
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («countZeroMod»)
+
 /-- Proof of Theorem 17: "We select the prime with the smallest count [...] and call it p."  The
 paper does not say how ties are broken, so this is a predicate: `p` is a prime in the range whose
 count is smallest. -/
 def IsSelectedPrime {n : ℕ} (T : TriangleInstance ℤ n) (D p : ℕ) : Prop :=
   p ∈ primesInRange D ∧ ∀ q ∈ primesInRange D, T.countZeroMod p ≤ T.countZeroMod q
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («IsSelectedPrime»)
 
 end TriangleInstance
 
@@ -992,11 +993,15 @@ p)". -/
 def residueClass {n : ℕ} (T : TriangleInstance ℤ n) (p : ℕ) (ϱ : Fin p) : Finset (Fin n × Fin n) :=
   Finset.univ.filter fun q : Fin n × Fin n => T.wAB q.1 q.2 ≡ ((ϱ : ℕ) : ℤ) [ZMOD (p : ℤ)]
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («residueClass»)
+
 /-- Proof of Theorem 17: "and cut it into chunks of at most n²/√D query pairs".  The `j`-th chunk of
 `W_ϱ`. -/
 noncomputable def chunkOf {n : ℕ} (T : TriangleInstance ℤ n) (D p : ℕ) (ϱ : Fin p) (j : ℕ) :
     Finset (Fin n × Fin n) :=
   chunk (T.residueClass p ϱ) (queryCap n D) j
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («chunkOf»)
 
 /-- Proof of Theorem 17: "For each chunk 𝒬 ⊆ W_ϱ and each piece C_k form the instance of
 Lop-AE-SparseTri(n, D) with query pairs W := 𝒬 and middle part C_k × ℤ_p [...], whose middle
@@ -1010,6 +1015,8 @@ noncomputable def lopInstance {n : ℕ} (T : TriangleInstance ℤ n) (D g p : �
       adjB := fun (c, σ) b => ((σ : ℕ) : ℤ) ≡ -T.wBC b c [ZMOD (p : ℤ)]
       W := T.chunkOf D p ϱ j }
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («lopInstance»)
+
 /-- Proof of Theorem 17: "For each chunk 𝒬 ⊆ W_ϱ and each piece C_k" there is an instance; these
 are the indices of all the instances. This set depends only on the Exact Triangle instance and on
 `D`, `g`, `p`, not on any answer of the oracle. -/
@@ -1018,6 +1025,8 @@ noncomputable def instanceIndices {n : ℕ} (T : TriangleInstance ℤ n) (D g p 
   Finset.univ.biUnion fun ϱ : Fin p =>
     ((Finset.range (numChunks (T.residueClass p ϱ) (queryCap n D))) ×ˢ
       (Finset.range (numPieces n D g))).image fun jk => (ϱ, jk)
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («instanceIndices»)
 
 /- #### Witnesses (proof of Theorem 17) -/
 
@@ -1028,6 +1037,8 @@ noncomputable def scanPiece {n : ℕ} (T : TriangleInstance ℤ n) (D g k : ℕ)
     Option (Fin n) :=
   ((List.finRange n).filter fun c => c ∈ piece n D g k).find? fun c => T.S a b c = 0
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («scanPiece»)
+
 /-- Proof of Theorem 17: "For every query pair that the oracle accepts".  `ans ι` is the oracle's
 answer to the instance with index `ι`.  The result is the set of all (instance, query pair of that
 instance) that the oracle accepts; each of them calls for one scan. -/
@@ -1035,6 +1046,8 @@ noncomputable def acceptedPairs {n : ℕ} (T : TriangleInstance ℤ n) (D g p : 
     (ans : InstanceIndex p → Fin n × Fin n → Bool) : Finset (InstanceIndex p × (Fin n × Fin n)) :=
   ((T.instanceIndices D g p) ×ˢ Finset.univ).filter fun (ι, q) =>
     q ∈ (T.lopInstance D g p ι).W ∧ ans ι q = true
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («acceptedPairs»)
 
 /-- Proof of Theorem 17: the scans, one after the other, over a list of accepted pairs: "We stop as
 soon as a zero triangle is found."  The result is the triangle found (or `none`) together with the
@@ -1047,6 +1060,8 @@ noncomputable def runScans {n : ℕ} (T : TriangleInstance ℤ n) (D g : ℕ) {p
     | some c => (some (a, b, c), 1)
     | none => ((runScans T D g rest).1, (runScans T D g rest).2 + 1)
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («runScans»)
+
 /-- Proof of Theorem 17: "For every query pair that the oracle accepts, scan [...]".  The paper does
 not say in which order.  `L` is an order of the scans: a list in which every accepted pair occurs
 exactly once. -/
@@ -1054,6 +1069,8 @@ def IsScanOrder {n : ℕ} (T : TriangleInstance ℤ n) (D g p : ℕ)
     (ans : InstanceIndex p → Fin n × Fin n → Bool) (L : List (InstanceIndex p × (Fin n × Fin n))) :
     Prop :=
   L.Nodup ∧ ∀ x, x ∈ L ↔ x ∈ T.acceptedPairs D g p ans
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («IsScanOrder»)
 
 end TriangleInstance
 
@@ -1065,16 +1082,10 @@ question that the problem `EndStatement.ThreeSum` asks.
 NOTE.  We read "three of them" as three numbers at three different positions of the input. -/
 abbrev ThreeSum {n : ℕ} (x : Fin n → ℤ) : Prop := EndStatement.ThreeSum.yes x
 
-/-- **Convolution-3SUM**, Section 1.2: "do x₀, …, x_{n−1} satisfy x_i + x_j = x_{i+j} for some
+/- **Convolution-3SUM**, Section 1.2: "do x₀, …, x_{n−1} satisfy x_i + x_j = x_{i+j} for some
 i, j?" -/
-def Convolution3SUM {R : Type} [Add R] {N : ℕ} (x : Fin N → R) : Prop :=
-  ∃ (i j : Fin N) (h : i.val + j.val < N), x i + x j = x ⟨i.val + j.val, h⟩
-
-/-- **Negative Triangle**, Section 1.2: "asks whether an edge-weighted graph has a triangle of
-negative total weight".  The instances here are those of Exact Triangle. -/
-def TriangleInstance.HasNegativeTriangle {R : Type} [Add R] [Zero R] [LT R] {n : ℕ}
-    (T : TriangleInstance R n) : Prop :=
-  ∃ a b c : Fin n, T.S a b c < 0
+export Lax350013.CallableProblems (Convolution3SUM)
+export Lax350013.CallableProblems (TriangleInstance.HasNegativeTriangle)
 
 /-- **The (min,+)-product** of Theorems 21 and 22, "defined by (A⋆B)[i,j] = min_k(A[i,k] + B[k,j])"
 (Section 1): `C` is the (min,+)-product of `A` and `B` if `C[i,j] = min_k (A[i,k] + B[k,j])` for all
@@ -1094,29 +1105,20 @@ def minPlus {R : Type} [Add R] [LinearOrder R] {n m l : ℕ} (A : Matrix (Fin n)
 is, `+∞`) if there is no such edge.  A walk that starts at `i` is given by the list of the vertices
 it visits after `i`. -/
 
-/-- The vertex at which the walk that starts at `i` and then visits `rest` ends. -/
-def walkEnd {n : ℕ} : Fin n → List (Fin n) → Fin n
-  | i, [] => i
-  | _, j :: rest => walkEnd j rest
+/- The vertex at which the walk that starts at `i` and then visits `rest` ends. -/
+export Lax350013.CallableProblems (walkEnd)
 
-/-- The total weight of the walk that starts at `i` and then visits `rest`; it is `⊤` if one of its
+/- The total weight of the walk that starts at `i` and then visits `rest`; it is `⊤` if one of its
 edges is missing, and the empty walk has weight 0. -/
-def walkWeight {R : Type} [Add R] [Zero R] {n : ℕ} (w : Fin n → Fin n → WithTop R) :
-    Fin n → List (Fin n) → WithTop R
-  | _, [] => 0
-  | i, j :: rest => w i j + walkWeight w j rest
+export Lax350013.CallableProblems (walkWeight)
 
-/-- Section 1 and Theorems 21 and 22: "no negative cycles".  Stated for closed walks, which is the
+/- Section 1 and Theorems 21 and 22: "no negative cycles".  Stated for closed walks, which is the
 same thing: a closed walk decomposes into cycles. -/
-def NoNegativeCycle {R : Type} [Add R] [Zero R] [LE R] {n : ℕ} (w : Fin n → Fin n → WithTop R) :
-    Prop :=
-  ∀ (i : Fin n) (rest : List (Fin n)), walkEnd i rest = i → 0 ≤ walkWeight w i rest
+export Lax350013.CallableProblems (NoNegativeCycle)
 
-/-- **APSP**, Section 1: "compute the shortest-path distance between every pair of vertices".  `d i
+/- **APSP**, Section 1: "compute the shortest-path distance between every pair of vertices".  `d i
 j` is the least weight of a walk from `i` to `j`, and `⊤` if `j` cannot be reached from `i`. -/
-def IsDistanceMatrix {R : Type} [Add R] [Zero R] [Preorder R] {n : ℕ}
-    (w : Fin n → Fin n → WithTop R) (d : Fin n → Fin n → WithTop R) : Prop :=
-  ∀ i j, IsLeast {x | ∃ rest : List (Fin n), walkEnd i rest = j ∧ walkWeight w i rest = x} (d i j)
+export Lax350013.CallableProblems (IsDistanceMatrix)
 
 /-- Every edge weight of the directed graph has absolute value at most `U`. -/
 def EdgeWeightsBoundedBy {R : Type} [Lattice R] [AddGroup R] {n : ℕ} (w : Fin n → Fin n → WithTop R)
@@ -1146,6 +1148,8 @@ def TriangleInstance.mapWeights {n : ℕ} (T : TriangleInstance ℤ n) :
     { wAB := fun a b => fAB (T.wAB a b)
       wBC := fun b c => fBC (T.wBC b c)
       wAC := fun a c => fAC (T.wAC a c) }
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («mapWeights»)
 
 /-- A rule that says where each edge weight of a triangle instance on `t` vertices per part is
 copied from, given an input `x₀, …, x_{N−1}`: `some (false, i)` stands for `x_i`, `some (true, i)`

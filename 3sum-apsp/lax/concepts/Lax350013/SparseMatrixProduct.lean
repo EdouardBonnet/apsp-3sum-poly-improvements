@@ -23,13 +23,14 @@ import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Tactic.DeriveFintype
 import Lax350013.MatrixPreprocessing
+import Lax350013.CallableAlgorithms
 
 /-!
 ---
 title: Faster computation of selected matrix-product entries
 type: theorem
 ---
-Theorem 1 computes up to $N^2/\sqrt D$ selected entries in $O(N^2/D^{0.063})$ time when $1\leq D$ and $D^{18}\leq N$. More generally, for $D\leq N^\varepsilon$, $\varepsilon<0.1204$, any $N^2/D^\kappa$ selected entries admit a polynomial saving for every $\kappa>0$. The individual statements also record Theorems 5, 25 and 30 and Corollaries 26 and 32.
+Theorem 1 computes up to $N^2/\sqrt D$ selected entries in $O(N^2/D^{0.063})$ time when $1\leq D$ and $D^{18}\leq N$. More generally, for $D\leq N^\varepsilon$, $\varepsilon<0.1204$, any $N^2/D^\kappa$ selected entries admit a polynomial saving for every $\kappa>0$. The individual statements also record Theorems 5, 25 and 30 and Corollaries 26 and 32. The callable versions also preserve memory and resource guarantees needed when these algorithms are used as subroutines.
 -/
 
 namespace Lax350013.SparseMatrixProduct
@@ -147,5 +148,9 @@ axiom corollary32 : Corollary_32
 
 /-- Faster computation of selected matrix-product entries: Theorem 1. -/
 axiom theorem1 : Theorem_1
+
+
+/-- Callable contract proved by upstream `Light.Sec2.claim_theorem_5`. -/
+axiom callableTheorem5 : Lax350013.CallableAlgorithms.Claim.Theorem_5 Lax350013.CallableAlgorithms.lightModel
 
 end Lax350013.SparseMatrixProduct

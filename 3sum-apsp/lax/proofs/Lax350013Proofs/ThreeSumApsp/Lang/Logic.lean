@@ -16,6 +16,7 @@ import Lax350013Proofs.ThreeSumApsp.Util.Basic
 import Mathlib.Algebra.BigOperators.Group.Finset.Basic
 import Mathlib.Order.ConditionallyCompleteLattice.Basic
 import Mathlib.Tactic.Ring
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -80,12 +81,12 @@ theorem Exec.append {s : Stmt} {σ σ' : State} {c : ℕ} (h : Exec lim P d s σ
   | whileTrue h₁ h₂ _ _ ih₁ ih₂ => exact .whileTrue h₁ h₂ ih₁ ih₂
   | call h₁ h₂ h₃ _ ih => exact .call h₁ (getElem?_append_of_eq_some h₂ R) h₃ ih
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Exec export _root_.Lax350013Proofs.Light.Exec («append»)
+
 /-! ## The rules -/
 
-/-- The statement s, started in σ, ends within T steps in a state that satisfies Q. -/
-def Ends (lim : Limits) (P : Program) (d : ℕ) (s : Stmt) (σ : State) (T : ℕ) (Q : State → Prop) :
-    Prop :=
-  ∃ σ' c, Exec lim P d s σ σ' c ∧ c ≤ T ∧ Q σ'
+/- The statement s, started in σ, ends within T steps in a state that satisfies Q. -/
+export Lax350013.ProcedureContracts (Ends)
 
 /-- More time and a weaker conclusion. -/
 theorem Ends.mono {s σ T T' Q Q'} (h : Ends lim P d s σ T Q) (hT : T ≤ T')
@@ -93,18 +94,26 @@ theorem Ends.mono {s σ T T' Q Q'} (h : Ends lim P d s σ T Q) (hT : T ≤ T')
   obtain ⟨σ', c, he, hc, hq⟩ := h
   exact ⟨σ', c, he, hc.trans hT, hQ _ hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («mono»)
+
 /-- What is proved about a program holds for the program with more procedures appended. -/
 theorem Ends.append {s σ T Q} (h : Ends lim P d s σ T Q) (R : Program) :
     Ends lim (P ++ R) d s σ T Q := by
   obtain ⟨σ', c, he, hc, hq⟩ := h
   exact ⟨σ', c, he.append R, hc, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («append»)
+
 theorem Ends.skip {σ T} {Q : State → Prop} (h : Q σ) : Ends lim P d .skip σ T Q :=
   ⟨σ, 0, .skip, Nat.zero_le _, h⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («skip»)
 
 theorem Ends.set {σ T x e} {Q : State → Prop} (hs : e.Safe lim σ) (hT : e.cost + 1 ≤ T)
     (h : Q { σ with loc := Function.update σ.loc x (e.val σ) }) : Ends lim P d (.set x e) σ T Q :=
   ⟨_, _, .set hs, hT, h⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («set»)
 
 theorem Ends.store {σ T a e} {Q : State → Prop} (ha : a.Safe lim σ) (he : e.Safe lim σ)
     (hA : lim.Addr (a.val σ)) (hT : a.cost + e.cost + 1 ≤ T)
@@ -112,11 +121,15 @@ theorem Ends.store {σ T a e} {Q : State → Prop} (ha : a.Safe lim σ) (he : e.
     Ends lim P d (.store a e) σ T Q :=
   ⟨_, _, .store ha he hA, hT, h⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («store»)
+
 theorem Ends.seq {σ T s₁ s₂} {Q : State → Prop} (T₁ T₂ : ℕ)
     (h : Ends lim P d s₁ σ T₁ fun σ' => Ends lim P d s₂ σ' T₂ Q) (hT : T₁ + T₂ ≤ T) :
     Ends lim P d (.seq s₁ s₂) σ T Q := by
   obtain ⟨σ', c₁, he₁, hc₁, σ'', c₂, he₂, hc₂, hq⟩ := h
   exact ⟨σ'', _, .seq he₁ he₂, by omega, hq⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («seq»)
 
 theorem Ends.ite {σ T c s₁ s₂} {Q : State → Prop} (T' : ℕ) (hs : c.Safe lim σ)
     (h₁ : c.Holds σ → Ends lim P d s₁ σ T' Q) (h₂ : ¬ c.Holds σ → Ends lim P d s₂ σ T' Q)
@@ -127,6 +140,8 @@ theorem Ends.ite {σ T c s₁ s₂} {Q : State → Prop} (T' : ℕ) (hs : c.Safe
   · obtain ⟨σ', k, he, hk, hq⟩ := h₂ hv
     exact ⟨σ', _, .iteFalse hs hv he, by omega, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («ite»)
+
 /-- A loop whose test holds: one round, then the loop again. -/
 theorem Ends.whileStep {σ c s T} {Q : State → Prop} (T₁ T₂ : ℕ) (hs : c.Safe lim σ) (hc : c.Holds σ)
     (h : Ends lim P d s σ T₁ fun σ' => Ends lim P d (.while c s) σ' T₂ Q)
@@ -134,10 +149,14 @@ theorem Ends.whileStep {σ c s T} {Q : State → Prop} (T₁ T₂ : ℕ) (hs : c
   obtain ⟨σ', c₁, he₁, hc₁, σ'', c₂, he₂, hc₂, hq⟩ := h
   exact ⟨σ'', _, .whileTrue hs hc he₁ he₂, by omega, hq⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («whileStep»)
+
 /-- A loop whose test fails. -/
 theorem Ends.whileDone {σ c s T} {Q : State → Prop} (hs : c.Safe lim σ) (hc : ¬ c.Holds σ)
     (hQ : Q σ) (hT : c.cost + 1 ≤ T) : Ends lim P d (.while c s) σ T Q :=
   ⟨σ, _, .whileFalse hs hc, hT, hQ⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («whileDone»)
 
 /-- Loops.  I i is the invariant before round number i (counted from 0) of n rounds, and b i bounds
 the cost of that round. -/
@@ -168,12 +187,16 @@ theorem Ends.while {σ c s} {Q : State → Prop} (I : ℕ → State → Prop) (n
       omega
   simpa using aux n 0 σ (by omega) hI
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («while»)
+
 /-- Loops in which every round costs at most b. -/
 theorem Ends.whileConst {σ c s T} {Q : State → Prop} (I : ℕ → State → Prop) (n b : ℕ) (hI : I 0 σ)
     (hs : ∀ i σ, i < n → I i σ → c.Safe lim σ ∧ c.Holds σ ∧ Ends lim P d s σ b (I (i + 1)))
     (hn : ∀ σ, I n σ → c.Safe lim σ ∧ ¬ c.Holds σ ∧ Q σ)
     (hT : n * (c.cost + 1 + b) + (c.cost + 1) ≤ T) : Ends lim P d (.while c s) σ T Q :=
   (Ends.while I n (fun _ => b) hI hs hn).mono (by simpa using hT) fun _ h => h
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («whileConst»)
 
 /-- Loops whose number of rounds depends on the data.  I is the invariant, m a quantity that every
 round decreases, and b bounds the cost of a round. -/
@@ -206,6 +229,8 @@ theorem Ends.whileVariant {σ c s T} {Q : State → Prop} (I : State → Prop) (
       · exact ⟨σ, _, .whileFalse (hsafe _ h) hc, by omega, hn σ h hc⟩
   exact (key _ σ hI le_rfl).mono hT fun _ h => h
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («whileVariant»)
+
 /-- Calls: verify the body from the frame made of the arguments. -/
 theorem Ends.call {σ T p args x body} {Q : State → Prop} (T' : ℕ) (ha : ∀ e ∈ args, e.Safe lim σ)
     (hp : P[p]? = some body) (hd : d < lim.depth)
@@ -214,6 +239,8 @@ theorem Ends.call {σ T p args x body} {Q : State → Prop} (T' : ℕ) (ha : ∀
     (hT : (args.map Expr.cost).sum + 2 + T' ≤ T) : Ends lim P d (.call p args x) σ T Q := by
   obtain ⟨σ', k, he, hk, hq⟩ := h
   exact ⟨_, _, .call ha hp hd he, by omega, hq⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («call»)
 
 /-! ## Notation for writing programs
 
@@ -237,14 +264,20 @@ infixl:70 " *' " => Expr.op Op.mul
 
 /-- The test a ≤ b, written as a < b + 1. -/
 abbrev Cond.le (a b : Expr) : Cond := a <' b +' k 1
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («le»)
 @[inherit_doc] infix:50 " ≤' " => Cond.le
 
 /-- Branching on a ≠ b: the branches of the test a = b, swapped. -/
 abbrev Stmt.iteNe (a b : Expr) (s₁ s₂ : Stmt) : Stmt := .ite (a =' b) s₂ s₁
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («iteNe»)
+
 /-- The test a ≤ b holds if and only if a ≤ b. -/
 theorem Cond.holds_le {σ : State} {a b : Expr} : (a ≤' b).Holds σ ↔ a.val σ ≤ b.val σ :=
   Int.lt_add_one_iff
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («holds_le»)
 
 /-! ## Simplification -/
 
@@ -278,17 +311,23 @@ theorem Limits.Addr.abs_le {a : ℤ} (h : lim.Addr a) (hw : (lim.space : ℤ) �
     |a| ≤ lim.word := by
   rw [abs_of_nonneg h.1]; exact h.2.le.trans hw
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Limits.Addr export _root_.Lax350013Proofs.Light.Limits.Addr («abs_le»)
+
 /-- A natural number below the size of the memory is an address, and fits in a word. -/
 theorem Limits.addr_of_lt (hw : (lim.space : ℤ) ≤ lim.word) {x : ℕ} (hx : x < lim.space) :
     lim.Addr (x : ℤ) ∧ |(x : ℤ)| ≤ lim.word := by
   have h : lim.Addr (x : ℤ) := ⟨Int.natCast_nonneg x, by exact_mod_cast hx⟩
   exact ⟨h, h.abs_le hw⟩
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Limits export _root_.Lax350013Proofs.Light.Limits («addr_of_lt»)
+
 /-- A natural number at most the size of the memory fits in a word. -/
 theorem Limits.abs_le_of_le (hw : (lim.space : ℤ) ≤ lim.word) {x : ℕ} (hx : x ≤ lim.space) :
     |(x : ℤ)| ≤ lim.word := by
   rw [abs_of_nonneg (Int.natCast_nonneg x)]
   exact le_trans (by exact_mod_cast hx) hw
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Limits export _root_.Lax350013Proofs.Light.Limits («abs_le_of_le»)
 
 end Light
 end

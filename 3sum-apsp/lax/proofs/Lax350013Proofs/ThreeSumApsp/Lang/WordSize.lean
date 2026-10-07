@@ -20,6 +20,7 @@ import Mathlib.Tactic.GCongr
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Positivity
 import Mathlib.Tactic.Ring
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -42,8 +43,8 @@ namespace Light
 
 open ThreeSumApsp.WordRam
 
-/-- The bound 2^s · ((p₁ + 1) (p₂ + 1) ⋯)^k in the parameters of an instance. -/
-def polyBound (s k : ℕ) (params : List ℕ) : ℕ := 2 ^ s * ((params.map (· + 1)).prod) ^ k
+/- The bound 2^s · ((p₁ + 1) (p₂ + 1) ⋯)^k in the parameters of an instance. -/
+export Lax350013.ProcedureContracts (polyBound)
 
 private theorem prod_succ_le (params : List ℕ) :
     (params.map (· + 1)).prod ≤ 2 ^ ((params.map Nat.log2).sum + params.length) := by

@@ -37,10 +37,12 @@ variables of its calls. -/
   | .skip => []
   | .set x _ => [x]
   | .store _ _ => []
-  | .seq s t => s.assigns ++ t.assigns
-  | .ite _ s t => s.assigns ++ t.assigns
-  | .while _ s => s.assigns
+  | .seq s t => (Stmt.assigns  s) ++ (Stmt.assigns  t)
+  | .ite _ s t => (Stmt.assigns  s) ++ (Stmt.assigns  t)
+  | .while _ s => (Stmt.assigns  s)
   | .call _ _ x => [x]
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («assigns»)
 
 /-- A run leaves a local variable that the statement does not assign as it was. -/
 theorem Exec.loc_eq_of_notMem_assigns {s : Stmt} {σ σ' : State} {c y : ℕ}
@@ -58,6 +60,8 @@ theorem Exec.loc_eq_of_notMem_assigns {s : Stmt} {σ σ' : State} {c y : ℕ}
   | whileTrue _ _ _ _ ih₁ ih₂ => exact (ih₂ hy).trans (ih₁ hy)
   | call _ _ _ _ _ => exact Function.update_of_ne (by simpa using hy) _ _
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Exec export _root_.Lax350013Proofs.Light.Exec («loc_eq_of_notMem_assigns»)
+
 /-- **All other locals are as before.**  Whatever holds after a statement, it also holds that the
 locals that the statement does not assign are unchanged. -/
 theorem Ends.keeping {s : Stmt} {σ : State} {T : ℕ} {Q : State → Prop}
@@ -66,12 +70,16 @@ theorem Ends.keeping {s : Stmt} {σ : State} {T : ℕ} {Q : State → Prop}
   obtain ⟨σ', c, he, hc, hq⟩ := h
   exact ⟨σ', c, he, hc, hq, fun _ hy => he.loc_eq_of_notMem_assigns hy⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («keeping»)
+
 /-- **All other locals are as before**, for a list `xs` that contains the locals that the statement
 assigns. -/
 theorem Ends.keepingBut {s : Stmt} {σ : State} {T : ℕ} {Q : State → Prop}
     (h : Ends lim P d s σ T Q) (xs : List ℕ) (hxs : s.assigns ⊆ xs := by simp) :
     Ends lim P d s σ T fun σ' => Q σ' ∧ ∀ y ∉ xs, σ'.loc y = σ.loc y :=
   h.keeping.mono le_rfl fun _ hq => ⟨hq.1, fun y hy => hq.2 y fun hmem => hy (hxs hmem)⟩
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («keepingBut»)
 
 end Light
 end

@@ -125,11 +125,15 @@ private theorem part (h : PolyNeed need) (hA : polyScale.SoftO A a) (hB : polySc
   ⟨_, PolyBounded.polyBound (A := fun n U => A (n, U)) (B := fun n U => B (n, U))
     (hA.mono isEmptyElim) (hB.mono isEmptyElim) s k, fun _ _ => hle _ _⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.PolyNeed export _root_.Lax350013Proofs.Light.PolyNeed («part»)
+
 /-- The numbers of the solver. -/
 theorem word (h : PolyNeed need) (hA : polyScale.SoftO A a) (hB : polyScale.SoftO B b) :
     polyScale.SoftO (fun p => (need (A p) (B p)).word) ![] :=
   let ⟨_, hR, hle⟩ := h.part hA hB
   Scale.SoftO.of_le hR fun p _ => (hle p.1 p.2).1
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.PolyNeed export _root_.Lax350013Proofs.Light.PolyNeed («word»)
 
 /-- The cells of the solver. -/
 theorem cells (h : PolyNeed need) (hA : polyScale.SoftO A a) (hB : polyScale.SoftO B b) :
@@ -137,11 +141,15 @@ theorem cells (h : PolyNeed need) (hA : polyScale.SoftO A a) (hB : polyScale.Sof
   let ⟨_, hR, hle⟩ := h.part hA hB
   Scale.SoftO.of_le hR fun p _ => (hle p.1 p.2).2.1
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.PolyNeed export _root_.Lax350013Proofs.Light.PolyNeed («cells»)
+
 /-- The depth of the calls of the solver. -/
 theorem depth (h : PolyNeed need) (hA : polyScale.SoftO A a) (hB : polyScale.SoftO B b) :
     polyScale.SoftO (fun p => (need (A p) (B p)).depth) ![] :=
   let ⟨_, hR, hle⟩ := h.part hA hB
   Scale.SoftO.of_le hR fun p _ => (hle p.1 p.2).2.2
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.PolyNeed export _root_.Lax350013Proofs.Light.PolyNeed («depth»)
 
 end PolyNeed
 

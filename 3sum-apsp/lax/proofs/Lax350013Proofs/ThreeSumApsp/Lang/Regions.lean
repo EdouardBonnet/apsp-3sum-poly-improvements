@@ -14,6 +14,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 import Mathlib.Data.Int.Notation
 import Mathlib.Data.Nat.Notation
 import Mathlib.Logic.Function.Basic
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -59,14 +60,14 @@ namespace Light
 
 /-! ## Regions -/
 
-/-- The cell `b` is among the `n` cells from address `a`. -/
-abbrev Inside (a n b : ℕ) : Prop := a ≤ b ∧ b < a + n
+/- The cell `b` is among the `n` cells from address `a`. -/
+export Lax350013.ProcedureContracts (Inside)
 
-/-- The cell `b` is not among the `n` cells from address `a`. -/
-abbrev Outside (a n b : ℕ) : Prop := b < a ∨ a + n ≤ b
+/- The cell `b` is not among the `n` cells from address `a`. -/
+export Lax350013.ProcedureContracts (Outside)
 
-/-- Two regions of the memory, of `n` cells from `a` and of `n'` cells from `a'`, do not meet. -/
-abbrev Apart (a n a' n' : ℕ) : Prop := a + n ≤ a' ∨ a' + n' ≤ a
+/- Two regions of the memory, of `n` cells from `a` and of `n'` cells from `a'`, do not meet. -/
+export Lax350013.ProcedureContracts (Apart)
 
 /-- A map of a part of the memory: the regions of the list lie one behind the other, in the order of
 the list, and the last one ends at or below `top`.  A region of the list is the pair of its first
@@ -78,8 +79,8 @@ abbrev InOrder (top : ℕ) : List (ℕ × ℕ) → Prop
 
 /-! ## Memories that agree on some cells -/
 
-/-- The memory `μ'` agrees with `μ` on every cell that satisfies `K`. -/
-def SameOn (K : ℕ → Prop) (μ μ' : ℕ → ℤ) : Prop := ∀ b, K b → μ' b = μ b
+/- The memory `μ'` agrees with `μ` on every cell that satisfies `K`. -/
+export Lax350013.ProcedureContracts (SameOn)
 
 /-- The memory `μ'` agrees with `μ` outside the `n` cells from address `a`. -/
 abbrev SameOutside (μ μ' : ℕ → ℤ) (a n : ℕ) : Prop := SameOn (Outside a n) μ μ'
@@ -93,36 +94,47 @@ and `k` cells from `c`. -/
 abbrev SameOutside3 (μ μ' : ℕ → ℤ) (a n b m c k : ℕ) : Prop :=
   SameOn (fun x => Outside a n x ∧ Outside b m x ∧ Outside c k x) μ μ'
 
-/-- No cell below the free pointer has changed. -/
-abbrev Kept (μ μ' : ℕ → ℤ) (fr : ℕ) : Prop := SameOn (· < fr) μ μ'
+/- No cell below the free pointer has changed. -/
+export Lax350013.ProcedureContracts (Kept)
 
-/-- No cell below the free pointer has changed, except the `len` cells from `out`. -/
-abbrev KeptBut (μ μ' : ℕ → ℤ) (fr out len : ℕ) : Prop :=
-  SameOn (fun x => x < fr ∧ Outside out len x) μ μ'
+/- No cell below the free pointer has changed, except the `len` cells from `out`. -/
+export Lax350013.ProcedureContracts (KeptBut)
 
 variable {K K' K₁ K₂ : ℕ → Prop} {μ μ' μ'' : ℕ → ℤ} {b : ℕ}
 
 /-- The case of a single cell. -/
 theorem SameOn.cell (h : SameOn (· = b) μ μ') : μ' b = μ b := h b rfl
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («cell»)
+
 theorem SameOn.refl : SameOn K μ μ := fun _ _ => rfl
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («refl»)
 
 theorem SameOn.trans (h₁ : SameOn K μ μ') (h₂ : SameOn K μ' μ'') : SameOn K μ μ'' :=
   fun b hb => (h₂ b hb).trans (h₁ b hb)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («trans»)
+
 /-- Fewer cells are kept. -/
 theorem SameOn.mono (h : SameOn K μ μ') (hK : ∀ b, K' b → K b) : SameOn K' μ μ' :=
   fun b hb => h b (hK b hb)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («mono»)
 
 /-- Two steps that keep different cells. -/
 theorem SameOn.then (h₁ : SameOn K₁ μ μ') (h₂ : SameOn K₂ μ' μ'') (hK : ∀ b, K b → K₁ b ∧ K₂ b) :
     SameOn K μ μ'' :=
   fun b hb => (h₂ b (hK b hb).2).trans (h₁ b (hK b hb).1)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («then»)
+
 /-- Writing a cell that need not be kept. -/
 theorem SameOn.write (h : SameOn K μ μ') (hb : ¬ K b) (x : ℤ) :
     SameOn K μ (Function.update μ' b x) := fun c hc => by
   rw [Function.update_of_ne (by rintro rfl; exact hb hc)]; exact h c hc
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SameOn export _root_.Lax350013Proofs.Light.SameOn («write»)
 
 /-! ## Writing a region cell by cell -/
 

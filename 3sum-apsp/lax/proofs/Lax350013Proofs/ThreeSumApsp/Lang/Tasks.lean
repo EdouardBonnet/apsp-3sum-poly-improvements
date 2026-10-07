@@ -14,6 +14,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 import Lax350013Proofs.ThreeSumApsp.Lang.Calls
 import Lax350013Proofs.ThreeSumApsp.Lang.Lib.Seg
 import Lax350013Proofs.ThreeSumApsp.Lang.WordSize
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -48,20 +49,13 @@ open ThreeSumApsp
 
 /-! ## Limits -/
 
-/-- What a run needs: the largest absolute value it forms, the number of cells it uses from the free
+/- What a run needs: the largest absolute value it forms, the number of cells it uses from the free
 pointer on, and the number of levels of calls below the procedure. -/
-structure Need : Type where
-  word : ℕ
-  cells : ℕ
-  depth : ℕ
+export Lax350013.ProcedureContracts (Need Need.mk Need.word Need.cells Need.depth)
 
-/-- The limits allow for the need of a procedure that is called at depth `d` with the free pointer
+/- The limits allow for the need of a procedure that is called at depth `d` with the free pointer
 `fr`.  An address always fits in a word. -/
-structure Need.Ok (r : Need) (lim : Limits) (fr d : ℕ) : Prop where
-  word : (r.word : ℤ) ≤ lim.word
-  cells : fr + r.cells ≤ lim.space
-  space : (lim.space : ℤ) ≤ lim.word
-  depth : d + r.depth ≤ lim.depth
+export Lax350013.ProcedureContracts (Need.Ok Need.Ok.mk Need.Ok.word Need.Ok.cells Need.Ok.space Need.Ok.depth)
 
 /-- A smaller need is allowed for if a larger one is, also with a larger free pointer and at a
 larger depth if the sums are not larger. -/
@@ -70,12 +64,11 @@ theorem Need.Ok.mono {r r' : Need} {lim : Limits} {fr fr' d d' : ℕ} (h : r.Ok 
     (hd : d' + r'.depth ≤ d + r.depth) : r'.Ok lim fr' d' :=
   ⟨le_trans (by exact_mod_cast hw) h.word, hc.trans h.cells, h.space, hd.trans h.depth⟩
 
-/-- A need that depends on a size and a bound is polynomially bounded in the two: by
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Need.Ok export _root_.Lax350013Proofs.Light.Need.Ok («mono»)
+
+/- A need that depends on a size and a bound is polynomially bounded in the two: by
 `2^s ((n + 1) (U + 1))^k`. -/
-def PolyNeed (need : ℕ → ℕ → Need) : Prop :=
-  ∃ s k : ℕ, ∀ n U : ℕ, (need n U).word ≤ polyBound s k [n, U] ∧ (need n U).cells ≤
-    polyBound s k [n, U] ∧
-    (need n U).depth ≤ polyBound s k [n, U]
+export Lax350013.ProcedureContracts (PolyNeed)
 
 /-! ## Specifications of single routines -/
 
@@ -84,33 +77,16 @@ theorem Seg.of_kept {μ μ' : ℕ → ℤ} {a fr : ℕ} {l : List ℤ} (h : Seg 
     (hle : a + l.length ≤ fr) : Seg μ' a l :=
   h.of_sameOn hk fun i hi => show a + i < fr by omega
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («of_kept»)
+
 /-! ## Tasks and solvers -/
 
-/-- A problem with a calling convention. -/
-structure Task : Type 1 where
-  /-- The instances, as they lie in the memory: sizes, bound, addresses, contents. -/
-  Inst : Type
-  /-- The size of an instance. -/
-  size : Inst → ℕ
-  /-- The bound on the absolute values of its numbers that is handed to the solver. -/
-  bound : Inst → ℕ
-  /-- The arguments of the call, without the free pointer, which comes last. -/
-  args : Inst → List ℤ
-  /-- The instance is valid, and it lies in the memory below the free pointer. -/
-  Pre : Inst → (ℕ → ℤ) → ℕ → Prop
-  /-- The result and the final memory are right.  (That the cells below the free pointer are
-  otherwise unchanged is part of this.) -/
-  Post : Inst → (ℕ → ℤ) → ℕ → ℤ → (ℕ → ℤ) → Prop
+/- A problem with a calling convention. -/
+export Lax350013.ProcedureContracts (Task Task.mk Task.Inst Task.size Task.bound Task.args Task.Pre Task.Post)
 
-/-- **Procedure `p` of the program `P` solves the task** within `T (size) (bound)` steps, whenever
+/- **Procedure `p` of the program `P` solves the task** within `T (size) (bound)` steps, whenever
 the limits allow for `need (size) (bound)`; and so it does in every program that begins with `P`. -/
-def Solves (task : Task) (P : Program) (p : ℕ) (T : ℕ → ℕ → ℕ) (need : ℕ → ℕ → Need) : Prop :=
-  ∃ body, P[p]? = some body ∧
-    ∀ (R : Program) (lim : Limits) (d : ℕ) (x : task.Inst) (μ : ℕ → ℤ) (fr : ℕ), task.Pre x μ fr →
-      (need (task.size x) (task.bound x)).Ok lim fr d →
-      Ends lim (P ++ R) d body ⟨frame (task.args x ++ [(fr : ℤ)]), μ⟩
-        (T (task.size x) (task.bound x))
-        fun σ' => task.Post x μ fr (σ'.loc 0) σ'.mem
+export Lax350013.ProcedureContracts (Solves)
 
 /-- A solver stays a solver when procedures are appended to its program. -/
 theorem Solves.append {task : Task} {P : Program} {p : ℕ} {T : ℕ → ℕ → ℕ} {need : ℕ → ℕ → Need}
@@ -119,6 +95,8 @@ theorem Solves.append {task : Task} {P : Program} {p : ℕ} {T : ℕ → ℕ →
   refine ⟨body, getElem?_append_of_eq_some hp R, fun R' lim d x μ fr hpre hok => ?_⟩
   rw [List.append_assoc]
   exact hb (R ++ R') lim d x μ fr hpre hok
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Solves export _root_.Lax350013Proofs.Light.Solves («append»)
 
 /-- **A solver meets the specification that its task prescribes**, in every program that begins with
 its program. -/
@@ -130,13 +108,12 @@ theorem Solves.meets {task : Task} {P₀ : Program} {p : ℕ} {T₀ : ℕ → �
   obtain ⟨body, hp, hb⟩ := h
   exact ⟨body, getElem?_append_of_eq_some hp R, hb R lim d x μ fr hpre hok⟩
 
-/-- "The task is solved in time `T`", for a real-valued `T` whose second argument is an upper bound
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Solves export _root_.Lax350013Proofs.Light.Solves («meets»)
+
+/- "The task is solved in time `T`", for a real-valued `T` whose second argument is an upper bound
 on the numbers: some solver with a polynomially bounded need takes at most `T n u` steps on every
 instance of size `n ≥ 1` with a bound `1 ≤ U ≤ u`. -/
-def SolvedIn (task : Task) (T : ℕ → ℝ → ℝ) : Prop :=
-  ∃ (P : Program) (p : ℕ) (Tn : ℕ → ℕ → ℕ) (need : ℕ → ℕ → Need), PolyNeed need ∧
-    Solves task P p Tn need ∧
-    ∀ (n U : ℕ) (u : ℝ), 1 ≤ n → 1 ≤ U → (U : ℝ) ≤ u → (Tn n U : ℝ) ≤ T n u
+export Lax350013.ProcedureContracts (SolvedIn)
 
 /-- A larger bound on the running time is still a bound on the running time. -/
 theorem SolvedIn.mono {task : Task} {T T' : ℕ → ℝ → ℝ} (h : SolvedIn task T)
@@ -144,6 +121,8 @@ theorem SolvedIn.mono {task : Task} {T T' : ℕ → ℝ → ℝ} (h : SolvedIn t
   obtain ⟨P, p, Tn, need, h1, h2, h3⟩ := h
   refine ⟨P, p, Tn, need, h1, h2, fun n U u hn hU hu => (h3 n U u hn hU hu).trans (hT n u hn ?_)⟩
   exact le_trans (by exact_mod_cast hU) hu
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SolvedIn export _root_.Lax350013Proofs.Light.SolvedIn («mono»)
 
 /-- The largest time `Tn n U` for a bound `U ≤ u`.  A program has a natural number as the bound on
 its numbers, and a claim on running times a real number. -/
@@ -173,6 +152,8 @@ theorem Solves.solvedIn {task : Task} {P : Program} {p : ℕ} {Tn : ℕ → ℕ 
     (hs : Solves task P p Tn need) (hp : PolyNeed need) : SolvedIn task (timeUpTo Tn) :=
   ⟨P, p, Tn, need, hp, hs, fun n _ _ _ _ hu => le_timeUpTo Tn n hu⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Solves export _root_.Lax350013Proofs.Light.Solves («solvedIn»)
+
 /-! ## Hosts -/
 
 /-- A host from the task `lower` to the task `upper`: from every solver of `lower` it makes a solver
@@ -198,27 +179,12 @@ theorem IsHost.solvedIn {lower upper : Task} {time : (ℕ → ℕ → ℕ) → �
 
 /-! ## Tasks with a list of parameters -/
 
-/-- A problem with a calling convention and a list of parameters. -/
-structure TaskN : Type 1 where
-  /-- The instances, as they lie in the memory. -/
-  Inst : Type
-  /-- The parameters on which time and need depend. -/
-  pars : Inst → List ℕ
-  /-- The arguments of the call, without the free pointer, which comes last. -/
-  args : Inst → List ℤ
-  /-- The instance is valid, and it lies in the memory below the free pointer. -/
-  Pre : Inst → (ℕ → ℤ) → ℕ → Prop
-  /-- The result and the final memory are right. -/
-  Post : Inst → (ℕ → ℤ) → ℕ → ℤ → (ℕ → ℤ) → Prop
+/- A problem with a calling convention and a list of parameters. -/
+export Lax350013.ProcedureContracts (TaskN TaskN.mk TaskN.Inst TaskN.pars TaskN.args TaskN.Pre TaskN.Post)
 
-/-- Procedure `p` of the program `P` solves the task within `T pars` steps, whenever the limits
+/- Procedure `p` of the program `P` solves the task within `T pars` steps, whenever the limits
 allow for `need pars`; and so it does in every program that begins with `P`. -/
-def SolvesN (task : TaskN) (P : Program) (p : ℕ) (T : List ℕ → ℕ) (need : List ℕ → Need) : Prop :=
-  ∃ body, P[p]? = some body ∧
-    ∀ (R : Program) (lim : Limits) (d : ℕ) (x : task.Inst) (μ : ℕ → ℤ) (fr : ℕ), task.Pre x μ fr →
-      (need (task.pars x)).Ok lim fr d →
-      Ends lim (P ++ R) d body ⟨frame (task.args x ++ [(fr : ℤ)]), μ⟩ (T (task.pars x))
-        fun σ' => task.Post x μ fr (σ'.loc 0) σ'.mem
+export Lax350013.ProcedureContracts (SolvesN)
 
 /-- A solver stays a solver when procedures are appended to its program. -/
 theorem SolvesN.append {task : TaskN} {P : Program} {p : ℕ} {T : List ℕ → ℕ} {need : List ℕ → Need}
@@ -227,6 +193,8 @@ theorem SolvesN.append {task : TaskN} {P : Program} {p : ℕ} {T : List ℕ → 
   refine ⟨body, getElem?_append_of_eq_some hp R, fun R' lim d x μ fr hpre hok => ?_⟩
   rw [List.append_assoc]
   exact hb (R ++ R') lim d x μ fr hpre hok
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SolvesN export _root_.Lax350013Proofs.Light.SolvesN («append»)
 
 /-- A solver meets the specification of its task, at the depth d at which it runs. -/
 theorem SolvesN.meets {task : TaskN} {P₀ : Program} {p : ℕ} {T₀ : List ℕ → ℕ}
@@ -238,10 +206,10 @@ theorem SolvesN.meets {task : TaskN} {P₀ : Program} {p : ℕ} {T₀ : List ℕ
   obtain ⟨body, hp, hb⟩ := h
   exact ⟨body, getElem?_append_of_eq_some hp R, hb R lim d x μ fr hpre hok⟩
 
-/-- A need that is polynomially bounded in the parameters. -/
-def PolyNeedN (need : List ℕ → Need) : Prop :=
-  ∃ s k : ℕ, ∀ ps : List ℕ, (need ps).word ≤ polyBound s k ps ∧ (need ps).cells ≤ polyBound s k ps ∧
-    (need ps).depth ≤ polyBound s k ps
+with_weak_namespace _root_.Lax350013.ProcedureContracts.SolvesN export _root_.Lax350013Proofs.Light.SolvesN («meets»)
+
+/- A need that is polynomially bounded in the parameters. -/
+export Lax350013.ProcedureContracts (PolyNeedN)
 
 end Light
 end

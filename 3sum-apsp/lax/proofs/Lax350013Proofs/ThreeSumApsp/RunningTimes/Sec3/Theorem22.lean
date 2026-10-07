@@ -20,6 +20,8 @@ import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Theorem22.ApspLayout
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Theorem22.MinPlusLayout
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Theorem22.ThreeSumPolylog
 import Lax350013Proofs.ThreeSumApsp.TimeClaims.Sec3.Theorem21_22
+import Lax350013.AlgorithmReductions
+import Lax350013.IntegerAlgorithmBounds
 
 namespace Lax350013Proofs
 
@@ -73,7 +75,7 @@ theorem claim_theorem_21b_minPlus : Claim.Theorem_21b_minPlus lightModel :=
 
 /-- Theorem 21(b): APSP from Exact Triangle, through the (min,+)-product. -/
 theorem claim_theorem_21b_apsp : Claim.Theorem_21b_apsp lightModel :=
-  Theorem21b.apsp_of_minPlus _ claim_theorem_21b_minPlus claim_apspFromMinPlus
+  Theorem21b.apsp_of_minPlus _ Lax350013.AlgorithmReductions.minPlusFromExactTriangle claim_apspFromMinPlus
 
 /-! ## A bound for Exact Triangle, plugged into Theorem 21 -/
 
@@ -82,7 +84,7 @@ theorem threeSum_of_uniform {δ : ℝ} {e : ℕ} (hδ : δ ≤ 1)
     (hu : Claim.ExactTriangleUniform lightModel δ e) {a : ℝ} (ha : 2 - δ / 2 < a) :
     SolvedInTime EndStatement.ThreeSum a 0 :=
   FromClaims.solvedInTime_of_claim realized_threeSum
-    ((threeSum_of_uniform_theorem_21a _ e hδ hu claim_theorem_21a).mono
+    ((threeSum_of_uniform_theorem_21a _ e hδ hu Lax350013.AlgorithmReductions.threeSumFromExactTriangle).mono
       fun _ hf => hf.upperBigOPow ha)
 
 /-- The (min,+)-product in `O(n^{3−δ/3} (log n)^{O(1)})` time. -/
@@ -90,14 +92,14 @@ theorem minPlus_polylog_of_uniform {δ : ℝ} {e : ℕ} (hδ : δ ≤ 1)
     (hu : Claim.ExactTriangleUniform lightModel δ e) :
     SolvedInPolylogTime EndStatement.MinPlusProduct (3 - δ / 3) :=
   FromClaims.solvedInPolylogTime_of_claim realized_minPlusProduct
-    (minPlus_of_uniform_theorem_21b _ e hδ hu claim_theorem_21b_minPlus)
+    (minPlus_of_uniform_theorem_21b _ e hδ hu Lax350013.AlgorithmReductions.minPlusFromExactTriangle)
 
 /-- APSP in `O(n^{3−δ/3} (log n)^{O(1)})` time. -/
 theorem apsp_polylog_of_uniform {δ : ℝ} {e : ℕ} (hδ : δ ≤ 1)
     (hu : Claim.ExactTriangleUniform lightModel δ e) :
     SolvedInPolylogTime EndStatement.APSP (3 - δ / 3) :=
   FromClaims.solvedInPolylogTime_of_claim realized_apsp
-    (apsp_of_uniform_theorem_21b _ e hδ hu claim_theorem_21b_apsp)
+    (apsp_of_uniform_theorem_21b _ e hδ hu Lax350013.AlgorithmReductions.apspFromExactTriangle)
 
 end Light.Sec3
 
@@ -105,7 +107,7 @@ namespace ThreeSumApsp
 
 /-- **Theorem 22**, on the word RAM: the bounds using Theorem 5. -/
 theorem wordRam_theorem_22_first : Items.Theorem_22_first := by
-  have hu := Light.Sec3.claim_exactTriangleUniform_usingTheorem5
+  have hu := Lax350013.IntegerAlgorithmBounds.uniformExactTriangleFirst
   have hminPlus := Light.Sec3.minPlus_polylog_of_uniform (by norm_num) hu
   have hapsp := Light.Sec3.apsp_polylog_of_uniform (by norm_num) hu
   rw [show (3 : ℝ) - 1 / 648 / 3 = 3 - 1 / 1944 by norm_num] at hminPlus hapsp
@@ -114,7 +116,7 @@ theorem wordRam_theorem_22_first : Items.Theorem_22_first := by
 
 /-- **Theorem 22**, on the word RAM: the bounds using Corollary 26. -/
 theorem wordRam_theorem_22_second : Items.Theorem_22_second :=
-  have hu := Light.Sec3.claim_exactTriangleUniform_usingCorollary26
+  have hu := Lax350013.IntegerAlgorithmBounds.uniformExactTriangleSecond
   have hminPlus := Light.Sec3.minPlus_polylog_of_uniform (by norm_num) hu
   have hapsp := Light.Sec3.apsp_polylog_of_uniform (by norm_num) hu
   ⟨Light.Sec3.threeSum_of_uniform (by norm_num) hu (by norm_num), hminPlus, hapsp,
@@ -144,10 +146,10 @@ theorem Theorem22.threeSum_polylog :
     SolvedInPolylogTime EndStatement.ThreeSum (2 - 1 / 1296) ∧
       SolvedInPolylogTime EndStatement.ThreeSum (2 - 0.00175 / 2) := by
   have hfirst := Light.Sec3.threeSum_solvedInPolylogTime (by norm_num)
-    Light.Sec3.claim_exactTriangleUniform_usingTheorem5
+    Lax350013.IntegerAlgorithmBounds.uniformExactTriangleFirst
   rw [show (2 : ℝ) - 1 / 648 / 2 = 2 - 1 / 1296 by norm_num] at hfirst
   exact ⟨hfirst, Light.Sec3.threeSum_solvedInPolylogTime (by norm_num)
-    Light.Sec3.claim_exactTriangleUniform_usingCorollary26⟩
+    Lax350013.IntegerAlgorithmBounds.uniformExactTriangleSecond⟩
 
 /-- **Theorem 22**, on the word RAM: 3SUM in `n^{2−1/1296+o(1)}` and in `n^{2−ε'/2+o(1)}`
 time. -/

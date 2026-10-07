@@ -78,6 +78,8 @@ theorem Ends.nextPair {A B N n t T : ℕ} {l : List ℤ} {μ : ℕ → ℤ} {Q :
     · rw [h2, hA]
     · rfl
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («nextPair»)
+
 end Light
 end
 

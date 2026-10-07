@@ -75,9 +75,13 @@ theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vlinList {s a b : ℤ} {A B : 
     exact (mul_le_of_le_one_left (abs_nonneg _) hs).trans (hB.getElem hiB)
   exact le_trans (abs_add_le _ _) (add_le_add (hA.getElem hiA) hsy)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («vlinList»)
+
 /-- A larger bound. -/
 theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.trans_le {l : List ℤ} {a b : ℤ} (h : AbsLe l a) (hab : a ≤ b) :
     AbsLe l b := fun x hx => (h x hx).trans hab
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («trans_le»)
 
 /-- Zeros are bounded by 0. -/
 theorem absLe_zeros (q : ℕ) : AbsLe (zeros q) 0 := by
@@ -98,10 +102,14 @@ theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.quarter {q t : ℕ} {l : List 
     AbsLe (quarter q t l) a :=
   fun x hx => h x (List.mem_of_mem_drop (List.mem_of_mem_take hx))
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («quarter»)
+
 /-- A quarter of a segment is a segment. -/
 theorem _root_.Lax350013Proofs.Light.Seg.quarter {μ : ℕ → ℤ} {a q t : ℕ} {l : List ℤ} (h : Seg μ a l) :
     Seg μ (a + t * q) (quarter q t l) :=
   (h.drop (t * q)).take q
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Seg export _root_.Lax350013Proofs.Light.Seg («quarter»)
 
 /-- A quarter of an array of 4 q numbers is an array of q numbers. -/
 theorem _root_.Lax350013Proofs.Light.ArrayAt.quarter {μ : ℕ → ℤ} {a q t top : ℕ} {l : List ℤ} {U : ℤ}
@@ -206,11 +214,15 @@ theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vadd {X Y : List ℤ} {x y : �
   rw [← vlinList_one]
   exact hX.vlinList hY (by simp)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («vadd»)
+
 /-- The entries of a difference. -/
 theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vsub {X Y : List ℤ} {x y : ℤ} (hX : AbsLe X x) (hY : AbsLe Y y) :
     AbsLe (vsub X Y) (x + y) := by
   rw [← vlinList_neg_one]
   exact hX.vlinList hY (by simp)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («vsub»)
 
 /-- The entries of a sum of two lists with the same bound. -/
 theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vadd_self {X Y : List ℤ} {c : ℤ} (hX : AbsLe X c)
@@ -218,11 +230,15 @@ theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vadd_self {X Y : List ℤ} {c 
     AbsLe (vadd X Y) (2 * c) :=
   (hX.vadd hY).trans_le (by omega)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («vadd_self»)
+
 /-- The entries of a difference of two lists with the same bound. -/
 theorem _root_.Lax350013Proofs.ThreeSumApsp.AbsLe.vsub_self {X Y : List ℤ} {c : ℤ} (hX : AbsLe X c)
     (hY : AbsLe Y c) :
     AbsLe (vsub X Y) (2 * c) :=
   (hX.vsub hY).trans_le (by omega)
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («vsub_self»)
 
 /-- The entries of the result of the routine, and of the products of its phases, are bounded. -/
 theorem absLe_strassenList (p : ℕ) :

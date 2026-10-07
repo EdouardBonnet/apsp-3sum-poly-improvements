@@ -1,7 +1,9 @@
 # 3SUM and APSP for the Lax Lean Archive
 
-This is an independent Lax packaging of Anthropic's formalization of Josh
-Alman and Virginia Vassilevska Williams,
+This is an independent Lax packaging of Anthropic's Lean formalization.
+Claude at Anthropic discovered the original algorithm. Josh Alman and
+Virginia Vassilevska Williams subsequently simplified, strengthened and
+extended the results and wrote
 [*Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse
 Lopsided Graphs*](https://arxiv.org/abs/2610.06783v1).
 
@@ -24,7 +26,8 @@ not assign ownership to upstream contributors.
 ## Scope
 
 The concept package exposes the word RAM, its uniform running-time
-semantics, persistent queries and phased inputs, and the following results.
+semantics, persistent queries and phased inputs, callable procedure
+contracts, and the following results.
 
 | Result | Bound or scope |
 | --- | --- |
@@ -58,12 +61,12 @@ and annotated certificates. Other upstream results remain available in the
 unchanged development outside this directory.
 The two packages use Lax's active Lean 4.33.0 environment and pinned mathlib,
 while the untouched upstream development retains its 4.33.1 configuration.
-`package.py` records the extraction, namespace changes and compatibility
+`package.py` and `procedure_concepts.py` record the extraction, namespace changes and compatibility
 adaptations. Run it from any directory to regenerate the Lean sources.
 
 The RAM instructions and interpreter, persistent-query and phased-execution
-relations, APSP path relation and thin-matrix input records are shared
-between concepts and proofs. The remaining duplicated
+relations, APSP path relation, structured-program execution, and procedure
+input records are shared between concepts and proofs. The remaining duplicated
 definitions are compared by Lean's definitional equality when checking
 each annotated certificate. No challenge file containing `sorry` is
 imported into the Lax package.
@@ -74,6 +77,7 @@ From this directory:
 python3 package.py
 python3 package.py --check
 lax build
+python3 audit_network.py
 lax serve
 ```
 
@@ -86,17 +90,28 @@ lax submit 3sum-apsp/lax
 Registration is a separate, irreversible archive operation; this packaging
 is intended to be submitted as a replaceable draft for review.
 
-Every use of an exposed machine-level theorem imports and uses its concept
+Every use of an exposed machine-level or callable theorem imports and uses its concept
 statement, including uses inside intermediate helper lemmas. The generator
 preserves the theorem's own proof and replaces references to that theorem
 throughout the adapted library with the corresponding concept axiom. Lax
 therefore records these dependencies in the proof network. The proof package
 requires only mathlib and this submission's concepts.
 In particular, the five rational-exponent headline claims depend
-on the more detailed running-time statements. Internal procedure-level
-reductions and compiler correctness remain in the proof library: a theorem
-asserting the existence of a RAM program is not silently substituted for
-the stronger callable-procedure contract used by those reductions.
+on the more detailed running-time statements. The matrix and triangle
+concepts also expose their stronger callable contracts: correctness under
+program extension, preservation of the caller's memory, and polynomial
+resource bounds. The algorithm reductions use these contracts as concept
+assumptions. Their original proofs and compiler correctness remain in the
+proof library. In particular, the network records both routes from thin
+matrix products to lopsided triangles and then Exact Triangle, followed by
+the reductions to 3SUM, min-plus product, APSP and weighted cliques.
+
+Name-resolution aliases preserve upstream dot notation for methods on shared
+types; they add no declarations to the concept namespace. Concept files
+contain definitions and statement axioms only and import no proof modules.
+`audit_network.py` reads the compiled proof assumptions, checks that all 45
+statements are proven by the least fixed point, and checks the matrix,
+triangle and final-problem dependency chains.
 Auxiliary theorems in retained upstream modules are preserved intentionally,
 including useful variants that can cause Lax's `unused-lemma` warnings.
 

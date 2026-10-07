@@ -65,7 +65,7 @@ theorem wordRam_theorem_2 : Items.Theorem_2 :=
 /-- **Theorem 2**, first line for `n`-vertex graphs, on the word RAM. -/
 theorem wordRam_theorem_2_graphs : Items.Theorem_2_graphs :=
   Light.Sec3.Theorem2.graphs_of
-    (exactTriangleIn_of_explicit _ Light.Sec3.claim_theorem_19_usingCorollary26)
+    (exactTriangleIn_of_explicit _ Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond)
 
 /-- **Theorem 3**, on the word RAM. -/
 theorem wordRam_theorem_3 : Items.Theorem_3 :=

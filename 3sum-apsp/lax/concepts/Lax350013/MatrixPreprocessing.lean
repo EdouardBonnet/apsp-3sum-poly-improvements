@@ -23,13 +23,14 @@ import Mathlib.NumberTheory.PrimeCounting
 import Mathlib.Probability.Independence.Basic
 import Mathlib.Tactic.DeriveFintype
 import Lax350013.MatrixTradeoffs
+import Lax350013.CallableAlgorithms
 
 /-!
 ---
 title: Explicit thin matrix preprocessing bounds
 type: theorem
 ---
-Corollary 26 gives $O(N^2/D^{0.063})$ preprocessing time and space and $O(D^{0.437})$ time per query for $1\leq D$ and $D^{18}\leq N$. Theorem 30 gives the underlying bounds at integer recursion parameters. Theorem 3 extends the trade-off to every $\varepsilon<0.1204$ and every positive query exponent.
+Corollary 26 gives $O(N^2/D^{0.063})$ preprocessing time and space and $O(D^{0.437})$ time per query for $1\leq D$ and $D^{18}\leq N$. Theorem 30 gives the underlying bounds at integer recursion parameters. Theorem 3 extends the trade-off to every $\varepsilon<0.1204$ and every positive query exponent. The callable versions also preserve memory and resource guarantees needed when these algorithms are used as subroutines.
 -/
 
 namespace Lax350013.MatrixPreprocessing
@@ -94,5 +95,9 @@ axiom theorem30 : Theorem_30
 
 /-- Explicit thin matrix preprocessing bounds: Theorem 3. -/
 axiom theorem3 : Theorem_3
+
+
+/-- Callable contract proved by upstream `Light.Sec4.claim_corollary_26_wanted`. -/
+axiom callableCorollary26 : Lax350013.CallableAlgorithms.Claim.Corollary_26_wanted Lax350013.CallableAlgorithms.lightModel
 
 end Lax350013.MatrixPreprocessing

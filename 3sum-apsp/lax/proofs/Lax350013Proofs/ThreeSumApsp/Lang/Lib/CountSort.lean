@@ -235,6 +235,8 @@ theorem Ends.csFor {entry : ℤ} {hi : Expr} {body : Stmt} {T : ℕ} (R : ℕ �
   rintro _ ⟨c, p, μ', rfl, same, h⟩
   exact ⟨(c, p), μ', rfl, same, h⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («csFor»)
+
 /-! ## The first phase: the counters are set to 0 -/
 
 /-- The first j cells of cnt are 0. -/

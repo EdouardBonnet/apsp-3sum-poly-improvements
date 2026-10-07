@@ -46,6 +46,8 @@ private theorem _root_.Lax350013Proofs.Light.Expr.height_pos (e : Expr) : 0 < e.
   | op o a b iha _ => exact lt_of_lt_of_le iha (le_max_left _ _)
   | load a ih => exact ih
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («height_pos»)
+
 /-- The temporary that receives the value of an expression is one of those that its code may
 change. -/
 private theorem cT_mem_temps_of_height (e : Expr) {k : ℕ} (hT : k + e.height ≤ 2 * F + 1) :

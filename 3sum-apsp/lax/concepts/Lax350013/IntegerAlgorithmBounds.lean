@@ -27,13 +27,14 @@ import Lax350013.ThreeSUM
 import Lax350013.MinPlusProduct
 import Lax350013.APSP
 import Lax350013.RAMResources
+import Lax350013.CallableAlgorithms
 
 /-!
 ---
 title: Integer algorithms before rounding the exponents
 type: theorem
 ---
-Theorem 19 gives Exact Triangle bounds from both constructions. Theorem 22 carries these improvements to 3SUM, min-plus product and APSP, retaining the logarithmic and $o(1)$ factors before rounding. These statements are deterministic integer word-RAM bounds; they do not assert the paper’s real-RAM or randomized bounds.
+Theorem 19 gives Exact Triangle bounds from both constructions. Theorem 22 carries these improvements to 3SUM, min-plus product and APSP, retaining the logarithmic and $o(1)$ factors before rounding. These statements are deterministic integer word-RAM bounds; they do not assert the paper’s real-RAM or randomized bounds. The callable versions also preserve memory and resource guarantees needed when these algorithms are used as subroutines.
 -/
 
 namespace Lax350013.IntegerAlgorithmBounds
@@ -119,5 +120,21 @@ axiom theorem22_threeSum : Theorem_22_threeSum
 
 /-- Integer algorithms before rounding the exponents: Theorem 2. -/
 axiom theorem2 : Theorem_2
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_theorem_19_usingTheorem5`. -/
+axiom callableExactTriangleFirst : Lax350013.CallableAlgorithms.Claim.Theorem_19_explicit Lax350013.CallableAlgorithms.lightModel (1 / 648) 2
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_theorem_19_usingCorollary26`. -/
+axiom callableExactTriangleSecond : Lax350013.CallableAlgorithms.Claim.Theorem_19_explicit Lax350013.CallableAlgorithms.lightModel 0.00175 1
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_exactTriangleUniform_usingTheorem5`. -/
+axiom uniformExactTriangleFirst : Lax350013.CallableAlgorithms.Claim.ExactTriangleUniform Lax350013.CallableAlgorithms.lightModel (1 / 648) 2
+
+
+/-- Callable contract proved by upstream `Light.Sec3.claim_exactTriangleUniform_usingCorollary26`. -/
+axiom uniformExactTriangleSecond : Lax350013.CallableAlgorithms.Claim.ExactTriangleUniform Lax350013.CallableAlgorithms.lightModel 0.00175 1
 
 end Lax350013.IntegerAlgorithmBounds

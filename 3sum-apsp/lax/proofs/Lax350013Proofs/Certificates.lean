@@ -288,4 +288,157 @@ theorem lax_wordRam_theorem_4 : Lax350013.HintedAlgorithms.Theorem_4 :=
   ⟨(show Items.Corollary_40_times from Lax350013.HintedAlgorithms.explicitTimes), wordRam_corollary_40_fail.1,
     Corollary40.fail_mono (by norm_num) sec4_epsStar_numeric.1.le wordRam_corollary_40_fail.2⟩
 
+/--
+---
+conclusion: Lax350013.SparseMatrixProduct.callableTheorem5
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableTheorem5 : Lax350013.CallableAlgorithms.Claim.Theorem_5 Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec2.claim_theorem_5
+
+/--
+---
+conclusion: Lax350013.MatrixPreprocessing.callableCorollary26
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableCorollary26 : Lax350013.CallableAlgorithms.Claim.Corollary_26_wanted Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec4.claim_corollary_26_wanted
+
+/--
+---
+conclusion: Lax350013.LopsidedTriangleAlgorithms.callableCorollary15First
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableCorollary15First : Lax350013.CallableAlgorithms.Claim.Corollary_15_first Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_corollary_15_first
+
+/--
+---
+conclusion: Lax350013.LopsidedTriangleAlgorithms.callableCorollary15General
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableCorollary15General : Lax350013.CallableAlgorithms.Claim.Corollary_15_general Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_corollary_15
+
+/--
+---
+conclusion: Lax350013.LopsidedTriangleAlgorithms.callableCorollary16
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableCorollary16 : Lax350013.CallableAlgorithms.Claim.Corollary_16 Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_corollary_16
+
+/--
+---
+conclusion: Lax350013.IntegerAlgorithmBounds.callableExactTriangleFirst
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableExactTriangleFirst : Lax350013.CallableAlgorithms.Claim.Theorem_19_explicit Lax350013.CallableAlgorithms.lightModel (1 / 648) 2 :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_19_usingTheorem5
+
+/--
+---
+conclusion: Lax350013.IntegerAlgorithmBounds.callableExactTriangleSecond
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_callableExactTriangleSecond : Lax350013.CallableAlgorithms.Claim.Theorem_19_explicit Lax350013.CallableAlgorithms.lightModel 0.00175 1 :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_19_usingCorollary26
+
+/--
+---
+conclusion: Lax350013.IntegerAlgorithmBounds.uniformExactTriangleFirst
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_uniformExactTriangleFirst : Lax350013.CallableAlgorithms.Claim.ExactTriangleUniform Lax350013.CallableAlgorithms.lightModel (1 / 648) 2 :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_exactTriangleUniform_usingTheorem5
+
+/--
+---
+conclusion: Lax350013.IntegerAlgorithmBounds.uniformExactTriangleSecond
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_uniformExactTriangleSecond : Lax350013.CallableAlgorithms.Claim.ExactTriangleUniform Lax350013.CallableAlgorithms.lightModel 0.00175 1 :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_exactTriangleUniform_usingCorollary26
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.exactTriangleViaTheorem5
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_exactTriangleViaTheorem5 : Lax350013.CallableAlgorithms.Claim.Theorem_17 Lax350013.CallableAlgorithms.lightModel Lax350013.CallableAlgorithms.strassen Lax350013.CallableAlgorithms.paramD₅ Lax350013.CallableAlgorithms.paramG₅ :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_17₅
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.exactTriangleViaCorollary26
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_exactTriangleViaCorollary26 : Lax350013.CallableAlgorithms.Claim.Theorem_17 Lax350013.CallableAlgorithms.lightModel Lax350013.CallableAlgorithms.strassen Lax350013.CallableAlgorithms.paramD₂₆ Lax350013.CallableAlgorithms.paramG₂₆ :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_17₂₆
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.threeSumFromExactTriangle
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_threeSumFromExactTriangle : Lax350013.CallableAlgorithms.Claim.Theorem_21a Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_21a
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.minPlusFromExactTriangle
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_minPlusFromExactTriangle : Lax350013.CallableAlgorithms.Claim.Theorem_21b_minPlus Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_21b_minPlus
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.apspFromExactTriangle
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_apspFromExactTriangle : Lax350013.CallableAlgorithms.Claim.Theorem_21b_apsp Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_theorem_21b_apsp
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.triangleCountsFromMatrixProduct
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_triangleCountsFromMatrixProduct : Lax350013.CallableAlgorithms.Claim.LopCountFromThinProduct Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_lopCountFromThinProduct
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.triangleDetectionFromCounts
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_triangleDetectionFromCounts : Lax350013.CallableAlgorithms.Claim.LopDetectFromCount Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_lopDetectFromCount
+
+/--
+---
+conclusion: Lax350013.AlgorithmReductions.splitTriangleQueries
+---
+The original upstream proof of the callable contract. Its uses of other exposed contracts go through concept statements.
+-/
+theorem lax_splitTriangleQueries : Lax350013.CallableAlgorithms.Claim.LopSplit Lax350013.CallableAlgorithms.lightModel :=
+  _root_.Lax350013Proofs.Light.Sec3.claim_lopSplit
+
 end Lax350013Proofs.ThreeSumApsp

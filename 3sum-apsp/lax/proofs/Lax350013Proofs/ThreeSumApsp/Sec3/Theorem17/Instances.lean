@@ -214,12 +214,16 @@ theorem mem_residueClass (hp : p ≠ 0) (ϱ : Fin p) (q : Fin n × Fin n) :
   simp only [residueClass, Finset.mem_filter, Finset.mem_univ, true_and]
   exact ⟨Int.ModEq.symm, Int.ModEq.symm⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («mem_residueClass»)
+
 /-- Proof of Theorem 17, the sets `W_ϱ` for `ϱ ∈ ℤ_p`: every pair `(a,b) ∈ A × B` lies in exactly
 one of them. -/
 theorem existsUnique_mem_residueClass (hp : p ≠ 0) (q : Fin n × Fin n) :
     ∃! ϱ : Fin p, q ∈ T.residueClass p ϱ :=
   ⟨resFin hp (T.wAB q.1 q.2), (T.mem_residueClass hp _ q).mpr rfl,
     fun ϱ hϱ => (T.mem_residueClass hp ϱ q).mp hϱ⟩
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («existsUnique_mem_residueClass»)
 
 /-- The sets `W_ϱ` have `n²` pairs in all. -/
 private theorem sum_card_residueClass (hp : p ≠ 0) :
@@ -235,6 +239,8 @@ private theorem sum_card_residueClass (hp : p ≠ 0) :
         (Finset.card_eq_sum_card_fiberwise fun _ _ => Finset.mem_coe.mpr (Finset.mem_univ _)).symm
     _ = n ^ 2 := by simp [sq]
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («sum_card_residueClass»)
+
 /-! ### The chunks -/
 
 /-- Proof of Theorem 17: "cut it into chunks of at most n²/√D query pairs".  (The chunks of `W_ϱ`
@@ -244,6 +250,8 @@ theorem card_chunkOf_le (hD : 1 ≤ D) (hDn : D ≤ n) (ϱ : Fin p) (j : ℕ) :
   calc ((T.chunkOf D p ϱ j).card : ℝ) ≤ (queryCap n D : ℝ) := by
         exact_mod_cast card_chunk_le _ (one_le_queryCap hD hDn) j
     _ ≤ (n : ℝ) ^ 2 / Real.sqrt D := Nat.floor_le (by positivity)
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_chunkOf_le»)
 
 /-- There are at most `p + s` chunks in all.  Each `W_ϱ` has at most `(|W_ϱ| + cap − 1)/cap` chunks,
 where `cap = ⌊n²/√D⌋`, so `p + s + 1` chunks or more would need `n² ≥ (s + 1) cap + p` pairs. -/
@@ -264,6 +272,8 @@ private theorem totalChunks_le_add_sOf (hD : 16 ≤ D) (hDn : D ≤ n) (hp0 : p 
   -- `hsum` and `hmul` give `(s + 1) cap + p ≤ n²`, against `hpairs`.
   omega
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («totalChunks_le_add_sOf»)
+
 /-- Proof of Theorem 17: "There are at most p + √D ≤ 2√D chunks in all."
 
 NOTE.  A chunk holds a whole number of pairs, at most `⌊n²/√D⌋`, so the count is at most
@@ -276,6 +286,8 @@ theorem totalChunks_le (hD : 16 ≤ D) (hDn : D ≤ n) (hp : p ∈ primesInRange
   have hnat : (T.totalChunks D p : ℝ) ≤ (p : ℝ) + (sOf D : ℝ) := by
     exact_mod_cast T.totalChunks_le_add_sOf hD hDn hprime.ne_zero hge
   exact ⟨by linarith [sOf_le_sqrt D], by linarith⟩
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («totalChunks_le»)
 
 /-! ### The instances -/
 
@@ -295,12 +307,16 @@ theorem middleAtMost_lopInstance (hD : 16 ≤ D) (hg1 : 1 ≤ g) (hp : p ∈ pri
         ((card_piece_le hD hg1 n ι.2.2).trans (pieceSize_le_sOf hg1))
     _ ≤ D := by exact_mod_cast hsp
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («middleAtMost_lopInstance»)
+
 /-- A query pair of the instance with index `(ϱ, j, k)` lies in `W_ϱ`, and `j` is the number of its
 chunk. -/
 theorem mem_lopInstance_W {T : TriangleInstance ℤ n} {ι : InstanceIndex p} {q : Fin n × Fin n}
     (hq : q ∈ (T.lopInstance D g p ι).W) :
     q ∈ T.residueClass p ι.1 ∧ rankIn (T.residueClass p ι.1) q / queryCap n D = ι.2.1 :=
   Finset.mem_filter.mp hq
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («mem_lopInstance_W»)
 
 /-- Proof of Theorem 17: "Within the chunk, the condition S(a,b,c) ≡ 0 (mod p) has become the
 equality w(a,c) + ϱ ≡ −w(b,c) of a label of (a,c) and a label of (b,c)". -/
@@ -310,6 +326,8 @@ theorem S_modEq_zero_iff {p ϱ : ℤ} {a b : Fin n} (hϱ : T.wAB a b ≡ ϱ [ZMO
     show 0 - T.S a b c = -T.wBC b c - (T.wAC a c + ϱ) + (ϱ - T.wAB a b) by
       simp only [S]; ring]
   exact dvd_add_left (Int.modEq_iff_dvd.mp hϱ)
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («S_modEq_zero_iff»)
 
 /-- Proof of Theorem 17: "a query pair (a,b) ∈ 𝒬 has a common neighbor if and only if some c ∈ C_k
 has S(a,b,c) ≡ 0 (mod p)". -/
@@ -329,6 +347,8 @@ theorem inTriangle_lopInstance_iff (hp : p ≠ 0) {ι : InstanceIndex p} {q : Fi
     exact ⟨(⟨c, hc⟩, resFin hp (-T.wBC q.2 c)),
       hB.trans ((T.S_modEq_zero_iff hϱ c).mp hS).symm, hB⟩
 
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («inTriangle_lopInstance_iff»)
+
 /-- Proof of Theorem 17, "For each chunk 𝒬 ⊆ W_ϱ and each piece C_k": `(ϱ, j, k)` is the index of an
 instance exactly if `j` is the number of a chunk of `W_ϱ` and `k` the number of a piece. -/
 theorem mem_instanceIndices (ι : InstanceIndex p) :
@@ -339,6 +359,8 @@ theorem mem_instanceIndices (ι : InstanceIndex p) :
     Finset.mem_image, Finset.mem_product, Finset.mem_range, Prod.mk.injEq, Prod.exists]
   exact ⟨fun ⟨_, _, _, h, h1, h2, h3⟩ => by subst h1 h2 h3; exact h,
     fun h => ⟨ϱ, j, k, h, rfl, rfl, rfl⟩⟩
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («mem_instanceIndices»)
 
 /-- There are as many instances as chunks times pieces. -/
 theorem card_instanceIndices (D g p : ℕ) :
@@ -354,6 +376,8 @@ theorem card_instanceIndices (D g p : ℕ) :
     obtain ⟨_, _, rfl⟩ := Finset.mem_image.mp hx
     obtain ⟨_, _, h⟩ := Finset.mem_image.mp hx'
     exact hne (congrArg Prod.fst h).symm
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_instanceIndices»)
 
 /-- Proof of Theorem 17: "There are at most 2√D h ≤ 2√D(ng/s + 1) ≤ 4ng instances". -/
 theorem card_instanceIndices_le (hD : 16 ≤ D) (hDn : D ≤ n) (hg1 : 1 ≤ g)
@@ -381,6 +405,8 @@ theorem card_instanceIndices_le (hD : 16 ≤ D) (hDn : D ≤ n) (hg1 : 1 ≤ g)
     _ ≤ 2 * Real.sqrt D * (numPieces n D g : ℝ) := by gcongr; exact hchunks.trans hchunks'
     _ ≤ 2 * Real.sqrt D * ((n : ℝ) * (g : ℝ) / (sOf D : ℝ) + 1) := by gcongr
     _ ≤ 4 * (n : ℝ) * (g : ℝ) := by linarith [hmain, hng, hsqrt]
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («card_instanceIndices_le»)
 
 end TriangleInstance
 
@@ -422,6 +448,8 @@ theorem TriangleInstance.ncard_nbr_lopInstance_le (T : TriangleInstance ℤ n) (
     ext v
     exact modEq_iff_eq_resFin hp v.2 _
   exact ⟨fun a => hgraph fun c => T.wAC a c + ((ι.1 : ℕ) : ℤ), fun b => hgraph fun c => -T.wBC b c⟩
+
+with_weak_namespace _root_.Lax350013.CallableProblems.TriangleInstance export _root_.Lax350013Proofs.ThreeSumApsp.TriangleInstance («ncard_nbr_lopInstance_le»)
 
 end ThreeSumApsp
 end

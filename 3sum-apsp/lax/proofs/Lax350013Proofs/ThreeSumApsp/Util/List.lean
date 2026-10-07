@@ -18,6 +18,7 @@ import Mathlib.Algebra.Order.Group.Int
 import Mathlib.Algebra.Order.Group.Nat
 import Mathlib.Data.List.GetD
 import Mathlib.Data.Nat.Count
+import Lax350013.ProcedureContracts
 
 namespace Lax350013Proofs
 
@@ -442,23 +443,29 @@ variable {α β : Type*}
 
 /-! ## Lists of integers that are bounded in absolute value -/
 
-/-- All members of the list `l` have absolute value at most `U`. -/
-def AbsLe (l : List ℤ) (U : ℤ) : Prop := ∀ x ∈ l, |x| ≤ U
+/- All members of the list `l` have absolute value at most `U`. -/
+export Lax350013.ProcedureContracts (AbsLe)
 
 /-- A bound on the absolute values of all members bounds every entry. -/
 theorem AbsLe.getElem {l : List ℤ} {U : ℤ} (h : AbsLe l U) {i : ℕ} (hi : i < l.length) :
     |l[i]| ≤ U :=
   h _ (List.getElem_mem hi)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («getElem»)
+
 /-- Two lists with a common bound, one after the other. -/
 theorem AbsLe.append {l₁ l₂ : List ℤ} {U : ℤ} (h₁ : AbsLe l₁ U) (h₂ : AbsLe l₂ U) :
     AbsLe (l₁ ++ l₂) U :=
   List.forall_mem_append.2 ⟨h₁, h₂⟩
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («append»)
+
 /-- A bound on the absolute values of all members bounds every `getD` with default `0`. -/
 theorem AbsLe.abs_getD_le {l : List ℤ} {U : ℤ} (hU : 0 ≤ U) (h : AbsLe l U) (i : ℕ) :
     |l.getD i 0| ≤ U :=
   List.getD_of_forall_mem (p := fun x => |x| ≤ U) (by rwa [abs_zero]) h i
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.AbsLe export _root_.Lax350013Proofs.ThreeSumApsp.AbsLe («abs_getD_le»)
 
 /-! ## The entrywise sum of lists -/
 

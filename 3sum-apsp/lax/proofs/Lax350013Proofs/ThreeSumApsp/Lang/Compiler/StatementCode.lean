@@ -111,6 +111,8 @@ def _root_.Lax350013Proofs.Light.Op.instr : Op → ℤ → ℤ → ℤ → Instr
   | .sub => .sub
   | .mul => .mul
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Op export _root_.Lax350013Proofs.Light.Op («instr»)
+
 /-- Code that builds in the cell c the number with the given binary digits, least significant digit
 first: the number of the higher digits, doubled, plus the lowest digit. -/
 def digitsCode (c : ℤ) : List ℕ → List Instr
@@ -134,8 +136,10 @@ def compileExpr : Expr → ℕ → List Instr
 def _root_.Lax350013Proofs.Light.Expr.size : Expr → ℕ
   | .const n => digitsLen (Nat.digits 2 n)
   | .var _ => 2
-  | .op _ a b => a.size + b.size + 1
-  | .load a => a.size + 1
+  | .op _ a b => (Expr.size  a) + (Expr.size  b) + 1
+  | .load a => (Expr.size  a) + 1
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («size»)
 
 /-- Code that goes on to the next position if the test holds and jumps to the position l if it does
 not.  Both tests evaluate a into T₀ and b into T₁.  For a < b the code forms D = b - a - 1 and
@@ -152,6 +156,8 @@ def compileCond : Cond → ℕ → List Instr
 def _root_.Lax350013Proofs.Light.Cond.size : Cond → ℕ
   | .lt a b => a.size + b.size + 3
   | .eq a b => a.size + b.size + 4
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («size»)
 
 /-! ## Statements -/
 
@@ -197,10 +203,12 @@ def _root_.Lax350013Proofs.Light.Stmt.size (F : ℕ) : Stmt → ℕ
   | .skip => 0
   | .set _ e => e.size + 2
   | .store a e => a.size + e.size + 1
-  | .seq s t => s.size F + t.size F
-  | .ite c s t => c.size + s.size F + 1 + t.size F
-  | .while c s => c.size + s.size F + 1
+  | .seq s t => (Stmt.size F s) + (Stmt.size F t)
+  | .ite c s t => c.size + (Stmt.size F s) + 1 + (Stmt.size F t)
+  | .while c s => c.size + (Stmt.size F s) + 1
   | .call _ args _ => callSize F args + 2
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («size»)
 
 /-- The code of a statement, for the position pos. -/
 def compileStmt (G : CodeLayout) : Stmt → ℕ → List Instr
@@ -300,23 +308,31 @@ is at most F" is taken apart by one lemma for each construct. -/
 def Expr.vars : Expr → ℕ
   | .const _ => 0
   | .var x => x + 1
-  | .op _ a b => max a.vars b.vars
-  | .load a => a.vars
+  | .op _ a b => max (Expr.vars  a) (Expr.vars  b)
+  | .load a => (Expr.vars  a)
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («vars»)
 
 /-- The number of temporaries that the code of an expression uses. -/
 def Expr.height : Expr → ℕ
   | .const _ => 1
   | .var _ => 1
-  | .op _ a b => max a.height (b.height + 1)
-  | .load a => a.height
+  | .op _ a b => max (Expr.height  a) ((Expr.height  b) + 1)
+  | .load a => (Expr.height  a)
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («height»)
 
 /-- The width of an expression: at least its variables and its temporaries. -/
 def Expr.width (e : Expr) : ℕ := max e.vars e.height
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («width»)
 
 /-- The width of a test: that of its two sides. -/
 def Cond.width : Cond → ℕ
   | .lt a b => max a.width b.width
   | .eq a b => max a.width b.width
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («width»)
 
 /-- The largest value of f on a list. -/
 def maxOf {α : Type} (f : α → ℕ) : List α → ℕ
@@ -329,10 +345,12 @@ def Stmt.width : Stmt → ℕ
   | .skip => 0
   | .set x e => max (x + 1) e.width
   | .store a e => max a.width e.width
-  | .seq s t => max s.width t.width
-  | .ite c s t => max c.width (max s.width t.width)
-  | .while c s => max c.width s.width
+  | .seq s t => max (Stmt.width  s) (Stmt.width  t)
+  | .ite c s t => max c.width (max (Stmt.width  s) (Stmt.width  t))
+  | .while c s => max c.width (Stmt.width  s)
   | .call _ args x => max (x + 1) (max args.length (maxOf Expr.width args))
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width»)
 
 section width
 
@@ -343,29 +361,49 @@ theorem maxOf_le_iff {α : Type} {f : α → ℕ} {l : List α} : maxOf f l ≤ 
 
 theorem Expr.vars_op_le_iff : (Expr.op o a b).vars ≤ F ↔ a.vars ≤ F ∧ b.vars ≤ F := max_le_iff
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («vars_op_le_iff»)
+
 theorem Expr.width_le_iff : e.width ≤ F ↔ e.vars ≤ F ∧ e.height ≤ F := max_le_iff
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («width_le_iff»)
 
 theorem Cond.width_lt_le_iff : (Cond.lt a b).width ≤ F ↔ a.width ≤ F ∧ b.width ≤ F := max_le_iff
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («width_lt_le_iff»)
+
 theorem Cond.width_eq_le_iff : (Cond.eq a b).width ≤ F ↔ a.width ≤ F ∧ b.width ≤ F := max_le_iff
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Cond export _root_.Lax350013Proofs.Light.Cond («width_eq_le_iff»)
+
 theorem Stmt.width_set_le_iff : (Stmt.set x e).width ≤ F ↔ x < F ∧ e.width ≤ F := max_le_iff
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_set_le_iff»)
 
 theorem Stmt.width_store_le_iff : (Stmt.store a e).width ≤ F ↔ a.width ≤ F ∧ e.width ≤ F :=
   max_le_iff
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_store_le_iff»)
+
 theorem Stmt.width_seq_le_iff : (Stmt.seq s t).width ≤ F ↔ s.width ≤ F ∧ t.width ≤ F := max_le_iff
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_seq_le_iff»)
 
 theorem Stmt.width_ite_le_iff :
     (Stmt.ite c s t).width ≤ F ↔ c.width ≤ F ∧ s.width ≤ F ∧ t.width ≤ F := by
   simp only [Stmt.width, max_le_iff]
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_ite_le_iff»)
+
 theorem Stmt.width_while_le_iff : (Stmt.while c s).width ≤ F ↔ c.width ≤ F ∧ s.width ≤ F :=
   max_le_iff
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_while_le_iff»)
 
 theorem Stmt.width_call_le_iff :
     (Stmt.call p args x).width ≤ F ↔ x < F ∧ args.length ≤ F ∧ ∀ e ∈ args, e.width ≤ F := by
   simp only [Stmt.width, max_le_iff, maxOf_le_iff, Nat.succ_le_iff]
+
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Stmt export _root_.Lax350013Proofs.Light.Stmt («width_call_le_iff»)
 
 end width
 

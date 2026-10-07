@@ -14,6 +14,7 @@ See NOTICE and README.md in the submission root for provenance and scope.
 import Lax350013Proofs.ThreeSumApsp.Programs.Sec2.Theorem5.AllInstances.Program
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.FromClaims
 import Lax350013Proofs.ThreeSumApsp.RunningTimes.Sec3.Corollary15_16.Layout
+import Lax350013.SparseMatrixProduct
 
 namespace Lax350013Proofs
 
@@ -38,7 +39,7 @@ namespace ThreeSumApsp
 /-- **Theorem 5**, on the word RAM. -/
 theorem wordRam_theorem_5 : Items.Theorem_5 :=
   FromClaims.Theorem5.of_claim Light.lightModel Light.Sec3.realized_thinProduct
-    Light.Sec2.claim_theorem_5
+    Lax350013.SparseMatrixProduct.callableTheorem5
 
 end ThreeSumApsp
 end

@@ -96,6 +96,8 @@ theorem frame_append_zeros (l : List ℤ) (n : ℕ) : frame (l ++ List.replicate
 @[simp] def Expr.Gives (lim : Limits) (σ : State) (e : Expr) (z : ℤ) : Prop :=
   e.Safe lim σ ∧ e.val σ = z
 
+with_weak_namespace _root_.Lax350013.StructuredPrograms.Expr export _root_.Lax350013Proofs.Light.Expr («Gives»)
+
 /-! ## One statement -/
 
 section rules
@@ -108,12 +110,16 @@ theorem Ends.setVal {loc : ℕ → ℤ} {x : ℕ} {e : Expr} (z : ℤ) (h : Q �
     Ends lim P d (.set x e) ⟨loc, μ⟩ T Q :=
   Ends.set he.1 hT (he.2 ▸ h)
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setVal»)
+
 /-- `x := e ; s`, where e gives z, for locals that are not given as a list. -/
 theorem Ends.setValThen {loc : ℕ → ℤ} {x : ℕ} {e : Expr} {s : Stmt} (z : ℤ)
     (h : Ends lim P d s ⟨Function.update loc x z, μ⟩ (T - (e.cost + 1)) Q)
     (he : e.Gives lim ⟨loc, μ⟩ z := by light_side) (hT : e.cost + 1 ≤ T := by light_time) :
     Ends lim P d (.set x e ;; s) ⟨loc, μ⟩ T Q :=
   Ends.next _ (Ends.setVal z h he le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setValThen»)
 
 /-- `x := e`, where e gives z. -/
 theorem Ends.setTo {x : ℕ} {e : Expr} (z : ℤ) (h : Q ⟨frame (setLocal l x z), μ⟩)
@@ -125,6 +131,8 @@ theorem Ends.setTo {x : ℕ} {e : Expr} (z : ℤ) (h : Q ⟨frame (setLocal l x 
   simp only [update_frame_setLocal]
   exact h
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setTo»)
+
 /-- `x := e ; s`, where e gives z.  The rest s of the text gets the steps that are left. -/
 theorem Ends.setToThen {x : ℕ} {e : Expr} {s : Stmt} (z : ℤ)
     (h : Ends lim P d s ⟨frame (setLocal l x z), μ⟩ (T - (e.cost + 1)) Q)
@@ -132,6 +140,8 @@ theorem Ends.setToThen {x : ℕ} {e : Expr} {s : Stmt} (z : ℤ)
     (hT : e.cost + 1 ≤ T := by light_time) :
     Ends lim P d (.set x e ;; s) ⟨frame l, μ⟩ T Q :=
   Ends.next _ (Ends.setTo z h he le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («setToThen»)
 
 /-- `mem[a] := e`, where a gives the address b, which lies in the memory, and e gives z. -/
 theorem Ends.storeTo {a e : Expr} (b : ℕ) (z : ℤ) (h : Q ⟨frame l, Function.update μ b z⟩)
@@ -146,6 +156,8 @@ theorem Ends.storeTo {a e : Expr} (b : ℕ) (z : ℤ) (h : Q ⟨frame l, Functio
   · rw [hav, hev, Int.toNat_natCast]
     exact h
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («storeTo»)
+
 /-- `mem[a] := e ; s`, where a gives the address b, which lies in the memory, and e gives z. -/
 theorem Ends.storeToThen {a e : Expr} {s : Stmt} (b : ℕ) (z : ℤ)
     (h : Ends lim P d s ⟨frame l, Function.update μ b z⟩ (T - (a.cost + e.cost + 1)) Q)
@@ -154,6 +166,8 @@ theorem Ends.storeToThen {a e : Expr} {s : Stmt} (b : ℕ) (z : ℤ)
     (hT : a.cost + e.cost + 1 ≤ T := by light_time) :
     Ends lim P d (.store a e ;; s) ⟨frame l, μ⟩ T Q :=
   Ends.next _ (Ends.storeTo b z h he le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («storeToThen»)
 
 /-- **Counting loops whose body is a block that changes no local variable**, with the locals as a
 list.  Before round j the locals are the given ones with j in the counter, and I j holds of the
@@ -181,6 +195,8 @@ theorem Ends.forFrame {i : ℕ} {hi : Expr} {body : Stmt} (I : ℕ → (ℕ → 
   · intro j μ' hj hI
     rw [update_frame_setLocal]
     exact bound j μ' hj hI
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («forFrame»)
 
 /-- **Counting loops whose body may change scratch variables.**  S j s μ' is the state before round
 j, with the values s of the scratch variables and the memory μ'; I j holds of the memory.  The
@@ -214,6 +230,8 @@ theorem Ends.forShape {β : Type} {loc : ℕ → ℤ} {i : ℕ} {hi : Expr} {bod
     exact done s μ' hI
   · rintro j _ hj - ⟨s, μ', rfl, hI⟩
     exact bound j s μ' hj hI
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («forShape»)
 
 end rules
 
@@ -325,6 +343,8 @@ theorem Ends.asFrame (h : LocalsBut xs l loc)
   rw [h.eq_frame]
   exact hs
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («asFrame»)
+
 /-- **A piece of text that assigns only the locals `xs`**, at the end of the program.  `h` is the
 lemma about the piece.  Afterwards the locals are the list `l` with the entries `xs` read from the
 locals `loc'` of which the lemma speaks. -/
@@ -338,6 +358,8 @@ theorem Ends.pieceTo (xs : List ℕ) (h : Ends lim P d s ⟨frame l, μ⟩ T₁ 
   rw [hloc.eq_frame]
   exact done loc' μ' hR
 
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («pieceTo»)
+
 /-- **A piece of text that assigns only the locals `xs`**, followed by the rest of the program,
 which gets the steps that are left. -/
 theorem Ends.pieceToThen (xs : List ℕ) (h : Ends lim P d s₁ ⟨frame l, μ⟩ T₁ R)
@@ -346,6 +368,8 @@ theorem Ends.pieceToThen (xs : List ℕ) (h : Ends lim P d s₁ ⟨frame l, μ�
     (hxs : s₁.assigns ⊆ xs := by simp) (hT : T₁ ≤ T := by light_time) :
     Ends lim P d (s₁ ;; s₂) ⟨frame l, μ⟩ T Q :=
   Ends.next T₁ (Ends.pieceTo xs h rest hxs le_rfl) hT
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («pieceToThen»)
 
 /-! ## Counting loops with scratch variables -/
 
@@ -392,6 +416,8 @@ theorem Ends.forScratch {i : ℕ} {hi : Expr} {body : Stmt} (xs : List ℕ)
   · rintro j σ hj hc ⟨hσ, hI⟩
     rw [shape j hσ hc]
     exact bound j σ.loc σ.mem hj hI
+
+with_weak_namespace _root_.Lax350013.ProcedureContracts.Ends export _root_.Lax350013Proofs.Light.Ends («forScratch»)
 
 end
 
