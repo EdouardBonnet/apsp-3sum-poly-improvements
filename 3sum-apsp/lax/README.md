@@ -16,7 +16,7 @@ The fork retains the complete upstream Git history. Upstream files outside
 this `lax` directory remain unchanged.
 
 The original formalization is copyright 2026 Anthropic, PBC. The Lax
-packaging was prepared independently by Édouard Bonnet and does not imply
+packaging was prepared independently by Codex gpt-6-Astra and does not imply
 endorsement by Anthropic or by the paper's authors. Lax submission ownership
 belongs to the submitting GitHub account, `EdouardBonnet`; attribution does
 not assign ownership to upstream contributors.

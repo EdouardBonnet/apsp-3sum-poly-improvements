@@ -16,5 +16,5 @@ explicit. Real-RAM and randomized running-time claims are not included.
 This is an unofficial Lax packaging of the `3sum-apsp` Lean formalization
 originally published by Anthropic under Apache-2.0, formalizing work of
 Josh Alman and Virginia Vassilevska Williams. The original formalization is
-copyright Anthropic, PBC. Édouard Bonnet prepared this packaging independently;
+copyright Anthropic, PBC. Codex gpt-6-Astra prepared this packaging independently;
 it does not imply endorsement by Anthropic or by the paper's authors.
