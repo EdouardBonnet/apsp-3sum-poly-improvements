@@ -319,6 +319,10 @@ def adapt(text, origin, extra_imports=()):
         imports.append('import ' + mod)
     imports += ['import ' + x for x in extra_imports]
     body = '\n'.join(lines)
+    if origin == 'PaperStatements.lean':
+        # Its 104 section docstrings exceed the inspector's per-module limit.
+        # Preserve every section's text as comments; concepts carry archive docs.
+        body = body.replace('/-!', '/-')
     body = body.replace('@[expose] ', '').replace('public section', 'section')
     body = body.replace('_root_.Light', f'_root_.{P}.Light').replace('_root_.ThreeSumApsp', f'_root_.{P}.ThreeSumApsp')
     body = body.replace('S.card_filter_div_eq_le', '(Finset.card_filter_div_eq_le S)')

@@ -27,7 +27,7 @@ import Lax350013.ThinMatrices
 
 namespace Lax350013Proofs
 
-/-!
+/-
 # Further statements of the paper
 
 Statements of the paper «Truly Subquadratic 3SUM and Truly Subcubic APSP via Triangles in Sparse
@@ -62,7 +62,7 @@ In a comment, "this part" means the part in which the comment stands.
 
 section
 
-/-!
+/-
 ## Section 2: definitions
 
 Definitions used by the statements of Section 2, "Quickly computing certain entries of a thin matrix
@@ -89,7 +89,7 @@ open Finset _root_.Finset
 
 namespace ThreeSumApsp
 
-/-! ### 2.2 Schönhage's identity for an inner product and an outer product -/
+/- ### 2.2 Schönhage's identity for an inner product and an outer product -/
 
 /-- Section 2.2: "We call x₁, x₂, x₃, p₁₁, p₁₂, p₂₁, p₂₂ the seven left variables". -/
 inductive LeftVar : Type
@@ -223,7 +223,7 @@ def Term.Contributes (lam : Term) (z : OutVar) : Prop := chi lam z ≠ 0
 instance Term.instDecidableContributes (lam : Term) (z : OutVar) : Decidable (lam.Contributes z) :=
   inferInstanceAs (Decidable (chi lam z ≠ 0))
 
-/-! ### 2.3.1 The recursion -/
+/- ### 2.3.1 The recursion -/
 
 /-- Section 2.3.1: "A left string of length L is a string u = u₁ u₂ ⋯ u_L of L left variables, and
 we call u_ℓ its variable at level ℓ." -/
@@ -287,7 +287,7 @@ def Full (L : ℕ) (a : LeftStr L → ℤ) (b : RightStr L → ℤ) : OutStr L �
 def Full.multipliedAt (L : ℕ) (a : LeftStr L → ℤ) (b : RightStr L → ℤ) (τ : Leaf L) : ℤ × ℤ :=
   (Full.run L a b).2 τ
 
-/-! ### 2.3.2 Unraveling the recursion computation -/
+/- ### 2.3.2 Unraveling the recursion computation -/
 
 /-- Section 2.3.2: "Φ_τ(a) := ∑_u a[u] ∏_{ℓ=1}^{L} φ_{τ_ℓ}(u_ℓ)", the sum over all left strings
 `u`. -/
@@ -315,7 +315,7 @@ def Mult {L : ℕ} (a : LeftStr L → ℤ) (b : RightStr L → ℤ) : OutStr L �
 def gamma (s : LeftVar) (t : RightVar) (z : OutVar) : ℤ :=
   ∑ lam : Term with lam.Contributes z, phi lam s * psi lam t
 
-/-! ### 2.3.3 Batch computation of multiple matrix products -/
+/- ### 2.3.3 Batch computation of multiple matrix products -/
 
 /-- Section 2.3.3: "The inner set of a left string is the set of levels at which it has a p (as
 opposed to an x)." -/
@@ -432,12 +432,12 @@ def arrayR {L : ℕ} (m : ℕ) (Y : Finset (Fin L) → RightMat L m) : RightStr 
   fun v =>
     if h : (innerSetR v).card = m then Y (innerSetR v) (innerPartR v h) (outerPartR v h) else 0
 
-/-! ### 2.3.4 Tiling the N × D × N product by products of shape N₀ × D × N₀: the number `M` -/
+/- ### 2.3.4 Tiling the N × D × N product by products of shape N₀ × D × N₀: the number `M` -/
 
 /-- Section 2.3.4: "M := K N₀²". -/
 def M (L m : ℕ) : ℕ := K L m * N0 L m ^ 2
 
-/-! ### 2.4.1 Sharing the encoding -/
+/- ### 2.4.1 Sharing the encoding -/
 
 /-- Section 2.4.1: "The encoding of a is the array of the 10^L numbers Φ_τ(a), indexed by the leaves
 τ." -/
@@ -446,7 +446,7 @@ def encodingL {L : ℕ} (a : LeftStr L → ℤ) : Leaf L → ℤ := fun τ => Ph
 /-- Section 2.4.1: "The encoding of b, the array of the numbers Ψ_τ(b)". -/
 def encodingR {L : ℕ} (b : RightStr L → ℤ) : Leaf L → ℤ := fun τ => Psi τ b
 
-/-! ### 2.4.2 Skipping the calls that are not needed -/
+/- ### 2.4.2 Skipping the calls that are not needed -/
 
 /-- Section 2.4.2: "for a set S of output strings and an output variable z, the slice S_z is the set
 of output strings w' with z w' ∈ S". -/
@@ -536,7 +536,7 @@ leaves that contribute to some output string of U." -/
 def Leaves {L : ℕ} (U : Finset (OutStr L)) : Finset (Leaf L) :=
   univ.filter fun τ => ∃ w ∈ U, Leaf.Contributes τ w
 
-/-! ### 2.4.3 Few leaves contribute to a sparse set of entries -/
+/- ### 2.4.3 Few leaves contribute to a sparse set of entries -/
 
 /-- The term that the private leaf has at a level where the output string has the variable `z`:
 `P₀` for `z₀` and `P_ij` for `z_ij`. -/
@@ -569,7 +569,7 @@ end ThreeSumApsp
 
 end Sec2Definitions
 
-/-!
+/-
 ## Section 2: statements
 
 The numbered lemmas and equations of Section 2 of the paper, and the figures that
@@ -604,7 +604,7 @@ namespace PaperStatements
 
 open ThreeSumApsp
 
-/-! ### 2.1 Strassen's recursive algorithm -/
+/- ### 2.1 Strassen's recursive algorithm -/
 
 /-- Equation (1) and the display after it: Strassen's seven products give the product of
 two 2 × 2 matrices.  The entries may be blocks, so they are taken in a ring that need not be
@@ -619,7 +619,7 @@ def Eq_1 : Prop :=
          (a11 + a22) * (b11 + b22) - (a21 + a22) * b11 + a11 * (b12 - b22)
             + (a21 - a11) * (b11 + b12)]
 
-/-! ### 2.2 Schönhage's identity for an inner product and an outer product -/
+/- ### 2.2 Schönhage's identity for an inner product and an outer product -/
 
 /-- **Lemma 6**.  "Summing over the ten terms, ∑_λ φ_λ ψ_λ χ_λ = G + E, where E :=
 ∑_{i,j=1}^{3} (x_i q̂_ij + p̂_ij y_j + p̂_ij q̂_ij) z_ij."  An identity of polynomials with integer
@@ -627,7 +627,7 @@ coefficients in the 24 variables. -/
 def Lemma_6 : Prop :=
   ∑ lam, formL (phi lam) * formR (psi lam) * formO (chi lam) = G + E
 
-/-! ### 2.3.1 The recursion -/
+/- ### 2.3.1 The recursion -/
 
 /-- Figure 3: "For instance, A_{P₃₁} = a_{x₃} - a_{p₁₁} - a_{p₂₁} and
 A_{P₀} = -a_{x₁} - a_{x₂} - a_{x₃}."  (Indices are counted from 0 in Lean.) -/
@@ -637,7 +637,7 @@ def Figure_3 : Prop :=
       ∧ encodeStepL .P0 a u'
         = -sliceAt a (.x 0) u' - sliceAt a (.x 1) u' - sliceAt a (.x 2) u'
 
-/-! ### 2.3.2 Unraveling the recursion computation -/
+/- ### 2.3.2 Unraveling the recursion computation -/
 
 /-- **Lemma 7**.  "At the leaf τ, Full(a, b) multiplies Φ_τ(a) by Ψ_τ(b), and it returns
 Mult(a, b)." -/
@@ -652,7 +652,7 @@ def Lemma_8 : Prop :=
   ∀ {L : ℕ} (a : LeftStr L → ℤ) (b : RightStr L → ℤ) (w : OutStr L),
     Mult a b w = ∑ u, ∑ v, (∏ ℓ, gamma (u ℓ) (v ℓ) (w ℓ)) * a u * b v
 
-/-! ### 2.3.3 Batch computation of multiple matrix products -/
+/- ### 2.3.3 Batch computation of multiple matrix products -/
 
 /-- Figure 4, for `L = 6` and `m = 2`.  This docstring counts levels and indices from 1,
 as the paper does; the Lean text counts them from 0, so that the inner set {2, 5} is `{1, 4}` and x₁
@@ -680,7 +680,7 @@ def Lemma_9 : Prop :=
     Mult (arrayL m X) (arrayR m Y) w
       = (X (innerSetO w) * Y (innerSetO w)) (rowO w h) (colO w h)
 
-/-! ### 2.4.2 Skipping the calls that are not needed -/
+/- ### 2.4.2 Skipping the calls that are not needed -/
 
 /-- **Lemma 10**, its three claims together.  "Let a and b be input arrays, and let U be a
 set of output strings of length L. Called at the root, Pruned(U) returns Mult(a, b) restricted to U.
@@ -698,7 +698,7 @@ def Lemma_10 : Prop :=
           ∀ τ : Leaf L, Pruned.Visits (encodingL a) (encodingR b) U τ ↔ τ ∈ Leaves U)
       ∧ Pruned.totalSize (encodingL a) (encodingR b) U ≤ (L + 1) * (Leaves U).card
 
-/-! ### 2.4.3 Few leaves contribute to a sparse set of entries -/
+/- ### 2.4.3 Few leaves contribute to a sparse set of entries -/
 
 /-- Section 2.4.3: "exactly α_d := binom(m, d) 9^d leaves of order d contribute to an output
 string".  As everywhere in Section 2.4.3, the output strings are those whose inner sets have exactly
@@ -765,7 +765,7 @@ def Lemma_11 : Prop :=
           ((Leaves U).card : ℝ)
             ≤ (2 : ℝ) ^ (-(m : ℝ) / 9) * ((2 : ℝ) ^ m * (U.card : ℝ) + 2 * (M L m : ℝ)))
 
-/-! ### 2.4.4 Proof of Theorem 5 -/
+/- ### 2.4.4 Proof of Theorem 5 -/
 
 /-- **Equation (6)**, the second consequence of `N ≥ D^18`: "10^L ≤ 2^{-m/9} N N₀", for
 `L = 19m`. -/
@@ -777,7 +777,7 @@ end PaperStatements
 
 end Sec2Statements
 
-/-!
+/-
 ## Section 3: definitions
 
 Definitions used by the statements of Section 3, "Exact Triangle reduces to computing certain
@@ -801,7 +801,7 @@ section Sec3Definitions
 
 namespace ThreeSumApsp
 
-/-! ### 3.1 The Lopsided All-Edges Sparse Triangle problem -/
+/- ### 3.1 The Lopsided All-Edges Sparse Triangle problem -/
 
 /-- **Definition 13**, the input: "an unweighted undirected tripartite graph with two parts
 A and B of n vertices each and a middle part M [...], with arbitrary edges in M × A and M × B.  Let
@@ -858,7 +858,7 @@ def LopInstance.ofMatrices {n D : ℕ} (X : Matrix (Fin n) (Fin D) ℤ) (Y : Mat
   adjB v b := Y v b = 1
   W := W
 
-/-! #### Cutting a set of pairs into sets of bounded size
+/- #### Cutting a set of pairs into sets of bounded size
 
 Corollary 15 ("splitting W into sets of at most n²/√D query pairs") and the proof of Theorem 17
 ("cut it into chunks of at most n²/√D query pairs") cut a set of pairs into smaller sets.  The paper
@@ -884,7 +884,7 @@ noncomputable def numChunks {n : ℕ} (S : Finset (Fin n × Fin n)) (cap : ℕ) 
 Theorem 5 has "at most N²/√D"): `⌊n²/√D⌋`. -/
 noncomputable def queryCap (n D : ℕ) : ℕ := ⌊(n : ℝ) ^ 2 / Real.sqrt D⌋₊
 
-/-! ### 3.2 A deterministic reduction from Exact Triangle to Lop-AE-SparseTri -/
+/- ### 3.2 A deterministic reduction from Exact Triangle to Lop-AE-SparseTri -/
 
 /-- Section 3.2: "An instance of Exact Triangle [...] consists of a complete tripartite graph on
 vertex parts A, B, C of n vertices each, and an integer weight w(e) on every edge".  The three
@@ -941,7 +941,7 @@ arguments, are read, so `w` need not be assumed symmetric. -/
 def GraphHasZeroTriangle {n : ℕ} (G : SimpleGraph (Fin n)) (w : Fin n → Fin n → ℤ) : Prop :=
   ∃ u v x : Fin n, G.Adj u v ∧ G.Adj v x ∧ G.Adj u x ∧ w u v + w v x + w u x = 0
 
-/-! #### Hashing modulo a prime (proof of Theorem 17) -/
+/- #### Hashing modulo a prime (proof of Theorem 17) -/
 
 open Classical in
 /-- Proof of Theorem 17: the primes "p ∈ [√D/2, √D)", called "the primes in the range". -/
@@ -963,7 +963,7 @@ def IsSelectedPrime {n : ℕ} (T : TriangleInstance ℤ n) (D p : ℕ) : Prop :=
 
 end TriangleInstance
 
-/-! #### The instances (proof of Theorem 17) -/
+/- #### The instances (proof of Theorem 17) -/
 
 /-- Proof of Theorem 17: "let s := ⌊√D⌋". -/
 noncomputable def sOf (D : ℕ) : ℕ := ⌊Real.sqrt D⌋₊
@@ -1019,7 +1019,7 @@ noncomputable def instanceIndices {n : ℕ} (T : TriangleInstance ℤ n) (D g p 
     ((Finset.range (numChunks (T.residueClass p ϱ) (queryCap n D))) ×ˢ
       (Finset.range (numPieces n D g))).image fun jk => (ϱ, jk)
 
-/-! #### Witnesses (proof of Theorem 17) -/
+/- #### Witnesses (proof of Theorem 17) -/
 
 /-- Proof of Theorem 17: "scan the piece C_k of its instance for a c with S(a,b,c) = 0".  The
 vertices of the piece are tried in increasing order; the result is the first `c` found, or `none` if
@@ -1057,7 +1057,7 @@ def IsScanOrder {n : ℕ} (T : TriangleInstance ℤ n) (D g p : ℕ)
 
 end TriangleInstance
 
-/-! ### 3.4 3SUM and APSP reduce to Exact Triangle: the problems -/
+/- ### 3.4 3SUM and APSP reduce to Exact Triangle: the problems -/
 
 /-- **3SUM**, Section 1: "Given n numbers, decide whether three of them sum to 0."  This is the
 question that the problem `EndStatement.ThreeSum` asks.
@@ -1089,7 +1089,7 @@ def minPlus {R : Type} [Add R] [LinearOrder R] {n m l : ℕ} (A : Matrix (Fin n)
     (B : Matrix (Fin m) (Fin l) (WithTop R)) : Matrix (Fin n) (Fin l) (WithTop R) :=
   Matrix.of fun i j => Finset.univ.inf fun k => A i k + B k j
 
-/-! A directed graph on the vertices `Fin n` with edge weights in `R` is a function
+/- A directed graph on the vertices `Fin n` with edge weights in `R` is a function
 `w : Fin n → Fin n → WithTop R`: `w i j` is the weight of the edge from `i` to `j`, and `⊤` (that
 is, `+∞`) if there is no such edge.  A walk that starts at `i` is given by the list of the vertices
 it visits after `i`. -/
@@ -1136,7 +1136,7 @@ def minPlusSquares {R : Type} [Add R] [Zero R] [LinearOrder R] {n : ℕ}
   | 0 => weightMatrix w
   | t + 1 => minPlus (minPlusSquares w t) (minPlusSquares w t)
 
-/-! #### The shape of the two reductions of [VW13] that Theorem 21 cites -/
+/- #### The shape of the two reductions of [VW13] that Theorem 21 cites -/
 
 /-- The instance on the same vertices obtained from `T` by applying one function to every weight
 `w(a,b)`, one to every `w(b,c)` and one to every `w(a,c)`. -/
@@ -1172,7 +1172,7 @@ def TriangleTemplate.instantiate {t N : ℕ} (τ : TriangleTemplate t N) (x : Fi
   wBC b c := templateWeight x fill (τ.eBC b c)
   wAC a c := templateWeight x fill (τ.eAC a c)
 
-/-! #### Asymptotic notation of Section 3 -/
+/- #### Asymptotic notation of Section 3 -/
 
 /-- `f(n) = n^{a+o(1)}`.
 
@@ -1194,7 +1194,7 @@ end ThreeSumApsp
 
 end Sec3Definitions
 
-/-!
+/-
 ## The reduction of Chan and He: definitions
 
 [CH20] is Timothy M. Chan and Qizheng He, *Reducing 3SUM to Convolution-3SUM*, Proc. 3rd SIAM
@@ -1246,7 +1246,7 @@ namespace ChanHe
 
 open Finset _root_.Finset
 
-/-! ### Collisions and heavy elements -/
+/- ### Collisions and heavy elements -/
 
 /-- The number of ordered pairs of distinct elements of `S` that are congruent modulo `M`. -/
 def coll (S : Finset ℤ) (M : ℕ) : ℕ := #{p ∈ S.offDiag | (M : ℤ) ∣ p.1 - p.2}
@@ -1257,7 +1257,7 @@ residue class modulo `M`, are called light below; they play the role of the good
 -/
 def heavy (S : Finset ℤ) (M : ℕ) : Finset ℤ := {x ∈ S | ∃ y ∈ S, y ≠ x ∧ (M : ℤ) ∣ x - y}
 
-/-! ### The arrays of one node -/
+/- ### The arrays of one node -/
 
 /-- The elements of `S` with remainder `r` modulo `M`. -/
 def bucket (S : Finset ℤ) (M : ℕ) (r : ℤ) : Finset ℤ := {x ∈ S | x % (M : ℤ) = r}
@@ -1280,7 +1280,7 @@ and `r + M`, where `r` is the remainder of `-c`.  All other cells, and all cells
 def arrZ (S : Finset ℤ) (M U : ℕ) (k : ℕ) : ℤ :=
   if k < 2 * M then arr (S.image fun c => -c) M (-pad U) (k % M) else -pad U
 
-/-! ### The choice of the modulus -/
+/- ### The choice of the modulus -/
 
 /-- The least element of a finite set of natural numbers, and 1 if the set is empty. -/
 def pick (T : Finset ℕ) : ℕ := if h : T.Nonempty then T.min' h else 1
@@ -1303,7 +1303,7 @@ def secondP (Q : Finset ℕ) (Λ : ℕ) (S₁ S₂ S₃ : Finset ℤ) (p : ℕ) 
 def modulus (Q : Finset ℕ) (Λ : ℕ) (S₁ S₂ S₃ : Finset ℤ) : ℕ :=
   firstP Q Λ S₁ S₂ S₃ * secondP Q Λ S₁ S₂ S₃ (firstP Q Λ S₁ S₂ S₃)
 
-/-! ### The recursion tree -/
+/- ### The recursion tree -/
 
 /-- A node of the recursion tree: three sets and the modulus chosen for them. -/
 structure Node where
@@ -1328,7 +1328,7 @@ def nodes (Q : Finset ℕ) (Λ : ℕ) : ℕ → Finset ℤ → Finset ℤ → Fi
         (nodes Q Λ f (heavy S₁ M) S₂ S₃ ++ nodes Q Λ f S₁ (heavy S₂ M) S₃ ++
           nodes Q Λ f S₁ S₂ (heavy S₃ M))
 
-/-! ### The parameters -/
+/- ### The parameters -/
 
 /-- `⌊log₂(2U)⌋ + 1`.  A nonzero difference of two numbers in `[-U, U]` has fewer prime divisors
 than this, and this many binary digits are enough for every number in `[0, 2U]`. -/
@@ -1351,7 +1351,7 @@ def wPar (n U : ℕ) : ℕ := 5 * Lam U * (Nat.sqrt n + 1)
 lemma `ChanHe.wPar_le_card_primesLE`). -/
 def mPar (n U : ℕ) : ℕ := (wPar n U + 1) * (2 * Nat.log 2 (wPar n U + 1) + 4)
 
-/-! ### The reduction for three sets -/
+/- ### The reduction for three sets -/
 
 /-- **The reduction for three sets.**  Here `n` is an upper bound on the sizes of the three sets and
 `U` on the absolute values of their elements; both stay fixed through the recursion.  The result is
@@ -1361,7 +1361,7 @@ a list of nodes.  The Convolution-3SUM instance of a node `ν` consists of the a
 def reduction (n U : ℕ) (S₁ S₂ S₃ : Finset ℤ) : List Node :=
   nodes (Nat.primesLE (mPar n U)) (Lam U) (fuel n) S₁ S₂ S₃
 
-/-! ### From n numbers to three sets -/
+/- ### From n numbers to three sets -/
 
 /-- The label of an element of `[-U, U]`: its value shifted into `[0, 2U]`. -/
 def lab (U : ℕ) (x : ℤ) : ℕ := (x + U).toNat
@@ -1384,7 +1384,7 @@ one place where the reduction decides a case by itself: 0 occurs at three positi
 `0, 0, 0` is a solution. -/
 def zeroSet {n : ℕ} (x : Fin n → ℤ) : Finset ℤ := if 3 ≤ #{i : Fin n | x i = 0} then {0} else ∅
 
-/-! ### Three arrays in one -/
+/- ### Three arrays in one -/
 
 /-- **Three arrays in one.**  With `G = 3W + 1`, where `W` bounds the entries of the three arrays,
 cell `4i + 1` holds `X i + G`, cell `4i + 2` holds `Y i + 3G`, cell `4i + 3` holds `Z i + 4G`, and
@@ -1399,7 +1399,7 @@ def oneArray (W : ℕ) (X Y Z : ℕ → ℤ) (u : ℕ) : ℤ :=
 def Node.oneArray (ν : Node) (U : ℕ) : ℕ → ℤ :=
   ChanHe.oneArray (2 * U + 1) (arrXY ν.S₁ ν.M U) (arrXY ν.S₂ ν.M U) (arrZ ν.S₃ ν.M U)
 
-/-! ### The whole reduction -/
+/- ### The whole reduction -/
 
 /-- All nodes that the reduction makes from `n` numbers of absolute value at most `U`.  The set of
 values is split in all `2 (Lam (2U))²` ways by two binary digits, for the solutions with three
@@ -1433,7 +1433,7 @@ parameters, and the writing of the arrays. -/
 def scanPairs (n U : ℕ) (x : Fin n → ℤ) : ℕ :=
   ((allNodes n U x).map fun ν => 2 * #(Nat.primesLE (mPar n (2 * U))) * (#ν.S₁ + #ν.S₂ + #ν.S₃)).sum
 
-/-! ### Sizes for inputs of absolute value at most n ^ κ -/
+/- ### Sizes for inputs of absolute value at most n ^ κ -/
 
 /-- The common length of the instances made from `n` numbers of absolute value at most `n ^ κ`. -/
 def lenOf (κ n : ℕ) : ℕ := 8 * mPar n (2 * n ^ κ) ^ 2
@@ -1452,7 +1452,7 @@ end ThreeSumApsp
 
 end ChanHeDefinitions
 
-/-!
+/-
 ## Section 3: statements
 
 The claims of Section 3 of the paper, proved or cited there, that are
@@ -1501,9 +1501,9 @@ namespace PaperStatements
 
 open ThreeSumApsp
 
-/-! ### 3.2 A deterministic reduction from Exact Triangle to Lop-AE-SparseTri -/
+/- ### 3.2 A deterministic reduction from Exact Triangle to Lop-AE-SparseTri -/
 
-/-! #### Theorem 17, first step: hashing modulo a prime -/
+/- #### Theorem 17, first step: hashing modulo a prime -/
 
 /-- Proof of Theorem 17: "each of them O(p²) word operations, so n^{ω+o(1)} D^{3/2} time over the
 fewer than √D primes in the range": the sum of `p²` over the primes in the range is at most
@@ -1513,7 +1513,7 @@ def Theorem_17_hashing_sum_sq_le : Prop :=
   ∀ D : ℕ, 16 ≤ D →
     ((∑ p ∈ primesInRange D, p ^ 2 : ℕ) : ℝ) ≤ (D : ℝ) ^ (3 / 2 : ℝ)
 
-/-! #### Theorem 17, second step: the instances -/
+/- #### Theorem 17, second step: the instances -/
 
 /-- Proof of Theorem 17: "Writing them down costs O(n² D g): the two bipartite graphs of an instance
 have O(nD) entries".  The two biadjacency matrices of an instance have `2nD` entries, and there are
@@ -1530,7 +1530,7 @@ def Theorem_17_write_cost : Prop :=
     ((T.instanceIndices D g p).card : ℝ) * (2 * (n : ℝ) * (D : ℝ))
       ≤ 8 * ((n : ℝ) ^ 2 * (D : ℝ) * (g : ℝ))
 
-/-! #### Theorem 17, third step: witnesses -/
+/- #### Theorem 17, third step: witnesses -/
 
 /-- Proof of Theorem 17: the accepted pairs can be put in some order, so the statements about every
 order of the scans are not empty. -/
@@ -1588,7 +1588,7 @@ def Remark_18_block : Prop :=
     (∀ b, (T.lopInstance D g p (ϱ, i, k)).adjB (c, σ) b ↔ T.wBC b c ≡ j [ZMOD (p : ℤ)]) ∧
     (∀ q ∈ (T.lopInstance D g p (ϱ, i, k)).W, T.wAB q.1 q.2 ≡ ((ϱ : ℕ) : ℤ) [ZMOD (p : ℤ)])
 
-/-! ### 3.3 Exact Triangle in truly subcubic time
+/- ### 3.3 Exact Triangle in truly subcubic time
 
 Theorem 19 is a statement about running time: `Items.Theorem_19`.
 Stated here: Remark 20. -/
@@ -1612,7 +1612,7 @@ def Remark_20_brute_force : Prop :=
     (n : ℝ) ^ 2 / Real.sqrt D * (pieceSize D g : ℝ) ≤ 2 * (n : ℝ) ^ 2 / (g : ℝ) ∧
     4 * (n : ℝ) * (g : ℝ) * (2 * (n : ℝ) ^ 2 / (g : ℝ)) = 8 * (n : ℝ) ^ 3
 
-/-! ### 3.4 3SUM and APSP reduce to Exact Triangle
+/- ### 3.4 3SUM and APSP reduce to Exact Triangle
 
 Theorem 22 is a statement about running time (`Items.Theorem_22_first`, `Items.Theorem_22_second`,
 `Items.Theorem_22_threeSum`).  Theorem 21 is cited from the literature, part (a) from [CH20, VW13]
@@ -1717,7 +1717,7 @@ def Theorem_21a_compose : Prop :=
     IsPowLittleO (fun n => (size₂ (N n) : ℝ)) (1 / 2) ∧
     IsPowLittleO (fun n => E₁ n + Num₁ n * E₂ (N n)) (3 / 2)
 
-/-! #### Theorem 21(a): the reduction from 3SUM to Convolution-3SUM, after Chan and He
+/- #### Theorem 21(a): the reduction from 3SUM to Convolution-3SUM, after Chan and He
 
 The first step towards Theorem 21(a), after [CH20, Theorem 5.1]: from n integers bounded by a power
 of n, a deterministic reduction computes polylogarithmically many arrays of length Õ(n), whose
@@ -1811,7 +1811,7 @@ end PaperStatements
 
 end Sec3Statements
 
-/-!
+/-
 ## Section 4: definitions
 
 Definitions used by the statements of Section 4, "The matrix theorem in general: a data structure".
@@ -1843,13 +1843,13 @@ open Finset _root_.Finset
 
 namespace ThreeSumApsp
 
-/-! ### Notions from Section 2 -/
+/- ### Notions from Section 2 -/
 
 /-- Section 4: "For a leaf τ of a tile with input arrays a and b, we call Φ_τ(a) Ψ_τ(b) the product
 at τ." -/
 def productAt {L : ℕ} (a : LeftStr L → ℤ) (b : RightStr L → ℤ) (τ : Leaf L) : ℤ := Phi τ a * Psi τ b
 
-/-! ### 4.2 Boxes -/
+/- ### 4.2 Boxes -/
 
 /-- Section 4.2: the symbols of a cube, "each of which is one of the ten terms of Schönhage's
 identity or a star ∗". -/
@@ -1948,7 +1948,7 @@ to this the values of the α_t boxes of w". -/
 def querySum {L : ℕ} (m t : ℕ) (a : LeftStr L → ℤ) (b : RightStr L → ℤ) (η : OutStr L) : ℤ :=
   ∑ τ ∈ lowLeaves m t η, productAt a b τ + ∑ V ∈ Vsets m t η, ∑ π ∈ BV η V, Cube.val a b π
 
-/-! ### 4.3 The data structure, in terms of the parameters -/
+/- ### 4.3 The data structure, in terms of the parameters -/
 
 /-- The set of all boxes (of a tile), for the parameters `L`, `m`, `t`. -/
 def boxes (L m t : ℕ) : Finset (Cube L) := univ.filter fun π => IsBox m t π
@@ -1997,7 +1997,7 @@ noncomputable def costQuery (L m t : ℕ) : ℝ := (L : ℝ) * ∑ d ∈ range (
 noncomputable def cost9 (L m t N W : ℕ) : ℝ :=
   (L : ℝ) * (W : ℝ) * ∑ d ∈ range (t + 1), (alpha m d : ℝ) + cost8 L m t N
 
-/-! ### 4.4 Choosing the parameters -/
+/- ### 4.4 Choosing the parameters -/
 
 /-- Proof of Corollary 26: "pad the inner dimension to 4^m < 4D with zero columns of X". The padded
 matrix has `D'` columns. This is a padding if `D₀ ≤ D'`; for `D' < D₀` the function drops the last
@@ -2039,7 +2039,7 @@ noncomputable def qOf (θ : ℝ) : ℝ := (entropy θ + θ * Real.log 9) / Real.
 (Only `L` gets a name here.) -/
 noncomputable def levelsOf (c : ℝ) (m : ℕ) : ℕ := ⌈c * (m : ℝ)⌉₊
 
-/-! #### Table 2 -/
+/- #### Table 2 -/
 
 /-- What the caption of Table 2 claims for a number `γ₀` of the left half, in the row of `c` and `ε`
 and the column of `q` ("a value γ for which Theorem 24 holds, meaning that after O(N² log² D/D^γ)
@@ -2107,7 +2107,7 @@ end ThreeSumApsp
 
 end Sec4Definitions
 
-/-!
+/-
 ## Section 4: statements
 
 The claims of Section 4 of the paper, "The matrix theorem in general: a data structure", that are
@@ -2151,7 +2151,7 @@ namespace PaperStatements
 
 open ThreeSumApsp
 
-/-! ### 4.2 Boxes -/
+/- ### 4.2 Boxes -/
 
 /-- **Lemma 27**. "Let Q be a set of m levels, and let 0 ≤ t ≤ m. For every Z ⊆ Q
 with |Z| ≤ m - t, there is exactly one set V ⊆ Q with |V| = m - t and V ∖ F_V ⊆ Z ⊆ V, namely Z
@@ -2238,7 +2238,7 @@ def Figure_10_Vof : Prop :=
     Vof 4 2 (univ : Finset (Fin 4)) {2} = {0, 2} ∧
     Vof 4 2 (univ : Finset (Fin 4)) {3} = {0, 3}
 
-/-! ### 4.3 The data structure, in terms of the parameters -/
+/- ### 4.3 The data structure, in terms of the parameters -/
 
 /-- **Lemma 29**, first sentence.  "There are at most (m+1) ∑_{d=t}^{m} β_d boxes." -/
 def Lemma_29_count : Prop :=
@@ -2263,7 +2263,7 @@ def Lemma_29_split : Prop :=
   ∀ (hne : (Cube.starLevels π).Nonempty) (lam : Term),
     Cube.replace π ((Cube.starLevels π).max' hne) lam ∈ boxesWithStars L m t e
 
-/-! #### The decay rate ρ and equation (7) -/
+/- #### The decay rate ρ and equation (7) -/
 
 /-- Section 4.3: `ρ = 9m/(L-m+1)` "is less than 1 since L ≥ 10m". -/
 def Sec4_rho_lt_one : Prop :=
@@ -2282,7 +2282,7 @@ def Eq_7 : Prop :=
   ∀ L m d : ℕ, 10 * m ≤ L → d ≤ m →
     (beta L m d : ℝ) ≤ rho L m ^ d * (M L m : ℝ)
 
-/-! ### 4.4 Choosing the parameters -/
+/- ### 4.4 Choosing the parameters -/
 
 /-- Equation (10), `D^γ · 10^L / (√K N₀) ≤ N`, where it is printed, in the proof of Corollary 26.
 There `D = 4^m`, "L := 21m", "γ := ln(20/9)/(9 ln 4)", "K = binom(21m, m)", "N₀ = 3^{20m}", and "the
@@ -2316,7 +2316,7 @@ def Eq_11_iff : Prop :=
   ∀ c γ ε : ℝ, 10 ≤ c → 0 ≤ γ → 0 < ε →
     (Real.exp (lnΛ c γ) < (4 : ℝ) ^ (1 / ε) ↔ ε < Rc c γ)
 
-/-! #### Corollary 31: the clauses that are not about time -/
+/- #### Corollary 31: the clauses that are not about time -/
 
 /-- Corollary 31: "γ := θ ln(1/ρ_c)/ln 4 > 0". -/
 def Corollary_31_gamma_pos : Prop :=
@@ -2343,7 +2343,7 @@ def Sec4_epsStar_numeric : Prop :=
 def Sec4_Rc_lt_epsStar : Prop :=
   ∀ c γ : ℝ, 10 < c → 0 ≤ γ → Rc c γ < epsStar
 
-/-! #### Corollary 32 -/
+/- #### Corollary 32 -/
 
 /-- Corollary 32: `N² log² D (D^{-γ} + D^{q-κ})` is "a saving of D^{min{γ, κ-q}}, up to logarithmic
 factors, over the size N² of the product":
@@ -2353,7 +2353,7 @@ def Corollary_32_saving : Prop :=
     (D₀ : ℝ) ^ (-(min γ (κ - q))) ≤ (D₀ : ℝ) ^ (-γ) + (D₀ : ℝ) ^ (q - κ) ∧
       (D₀ : ℝ) ^ (-γ) + (D₀ : ℝ) ^ (q - κ) ≤ 2 * (D₀ : ℝ) ^ (-(min γ (κ - q)))
 
-/-! #### Table 2, and the column of Table 1 on Section 2 -/
+/- #### Table 2, and the column of Table 1 on Section 2 -/
 
 /-- Caption of Table 2, left half: "the numerical entry is a value γ for which Theorem 24 holds,
 meaning that after O(N² log² D/D^γ) preprocessing, a query takes O(D^q log D) time", "whenever
@@ -2377,7 +2377,7 @@ def Table_2_density_valid : Prop :=
   ∀ c ε κ γ₀ : ℝ, Table2Density c ε κ γ₀ →
     ValidDensityEntry c ε κ γ₀
 
-/-! ##### The six rows of Table 2
+/- ##### The six rows of Table 2
 
 Each statement has the numbers of a row in the order in which the paper prints them: the first line
 has `c`, `ε` and the left half, the second line the right half. It says that every entry is computed
@@ -2436,7 +2436,7 @@ def Table_1_section_2_column : Prop :=
     1 / 18 < Rc 19 (1 / 18) ∧
     min (gammaOf 19 (1 / 9)) (1 / 2 - qOf (1 / 9)) = 1 / 18
 
-/-! #### Corollary 26 -/
+/- #### Corollary 26 -/
 
 /-- Corollary 26: `|W| D^{0.437} + N²/D^{0.063}` "is O(N²/D^{0.063}) whenever |W| ≤ N²/√D"
 (with constant 2).
@@ -2451,7 +2451,7 @@ end PaperStatements
 
 end Sec4Statements
 
-/-!
+/-
 ## Section 5: definitions
 
 Definitions used by the statements about Section 5, in the paper's order. Only what the statements
@@ -2478,7 +2478,7 @@ open Finset _root_.Finset
 
 namespace ThreeSumApsp
 
-/-! ### Blocks of consecutive rows and columns (used in 5.1, 5.2 and 5.4) -/
+/- ### Blocks of consecutive rows and columns (used in 5.1, 5.2 and 5.4) -/
 
 /-- Proof of Theorem 34: "Cut the n × n^μ matrix into n^{1-μ} blocks of n^μ consecutive
 rows". Also the proof of Lemma 36 ("blocks B' ... of d consecutive rows") and the proof of Corollary
@@ -2495,7 +2495,7 @@ def blockOfCols {R : Type} {b m l : ℕ} (B : Matrix (Fin l) (Fin (b * m)) R) (q
     Matrix (Fin l) (Fin m) R :=
   fun k j => B k (finProdFinEquiv (q, j))
 
-/-! ### 5.2 Comparison counts -/
+/- ### 5.2 Comparison counts -/
 
 namespace ComparisonCounts
 
@@ -2569,7 +2569,7 @@ noncomputable def comparisonCount {n d : ℕ} (cmp : Cmp) (Ls : Lists n d) (r c 
     (rowItem r p.1).color = (colItem c p.2).color ∧
       cmp.Holds ((rowItem r p.1).val) ((colItem c p.2).val)).card
 
-/-! #### The objects in the proof of Lemma 36 -/
+/- #### The objects in the proof of Lemma 36 -/
 
 /-- Proof of Lemma 36, [CVX22, Problem 3.2]: "find, for every (i,j), the predecessor and the
 successor of C[i,j] among the d sums A'[i,k] + B'[k,j], where a sum equal to C[i,j] counts as its
@@ -2632,7 +2632,7 @@ def lists45 {b d : ℕ} (A B : Fin b → Fin d → ℝ) (K' L' : Finset (Fin d))
   col c := (listOf L').map fun l' =>
     (B (finProdFinEquiv.symm c).1 (finProdFinEquiv.symm c).2 - B (finProdFinEquiv.symm c).1 l', χ₀)
 
-/-! #### The construction of Lemma 37 -/
+/- #### The construction of Lemma 37 -/
 
 /-- Lemma 37: "D'' := ⌈2nd/s⌉ + d". -/
 def D'' (n d s : ℕ) : ℕ := ⌈(2 * n * d : ℚ) / s⌉₊ + d
@@ -2736,7 +2736,7 @@ blocks. -/
 def enumeratedPairs {n d : ℕ} {cmp : Cmp} {Ls : Lists n d} (o : SortedOrder cmp Ls) (s : ℕ) : ℕ :=
   ∑ kβ ∈ blockPairs o s, (blockRowItems o s kβ).card * (blockColItems o s kβ).card
 
-/-! #### The parameters of Corollary 38 and of the proof of Theorem 35 -/
+/- #### The parameters of Corollary 38 and of the proof of Theorem 35 -/
 
 /-- Proof of Corollary 38: "s := ⌈n^{1-1/440}/d⌉". -/
 noncomputable def blockLen (n d : ℕ) : ℕ := ⌈(n : ℝ) ^ (1 - 1 / 440 : ℝ) / d⌉₊
@@ -2749,7 +2749,7 @@ noncomputable def listLen (n : ℕ) : ℕ := ⌊(n : ℝ) ^ (1 / 40 : ℝ)⌋₊
 
 end ComparisonCounts
 
-/-! ### 5.4 Three conjectures of van den Brand, Nanongkai, and Saranurak -/
+/- ### 5.4 Three conjectures of van den Brand, Nanongkai, and Saranurak -/
 
 namespace HintedMv
 
@@ -2825,7 +2825,7 @@ end ThreeSumApsp
 
 end Sec5Definitions
 
-/-!
+/-
 ## Section 5: statements
 
 The pieces of Sections 5.1 and 5.2 that the paper itself argues and that are mathematics:
@@ -2864,7 +2864,7 @@ namespace PaperStatements
 
 open ThreeSumApsp
 
-/-! ### 5.1 Directed APSP with small integer weights -/
+/- ### 5.1 Directed APSP with small integer weights -/
 
 /-- Proof of Theorem 34: "Cut the n × n^μ matrix into n^{1-μ} blocks of n^μ
 consecutive rows, and the n^μ × n matrix into n^{1-μ} blocks of n^μ consecutive columns.  The
@@ -2898,13 +2898,13 @@ def Theorem_34_absorb : Prop :=
     (fun n : ℕ => (n : ℝ) ^ (2 + μ - μ * 0.00175 / 3) * Real.log n ^ c) =O[atTop]
       (fun n : ℕ => (n : ℝ) ^ (2 + μ - ε₁))
 
-/-! ### 5.2 3SUM, APSP, and Exact Triangle with real inputs -/
+/- ### 5.2 3SUM, APSP, and Exact Triangle with real inputs -/
 
 section ComparisonCounts
 
 open ComparisonCounts
 
-/-! #### Lemma 36(a): the parts argued in the paper -/
+/- #### Lemma 36(a): the parts argued in the paper -/
 
 /-- Proof of Lemma 36(a): "For Exact Triangle, A[i,k] := w(i,k), B[k,j] := w(k,j), and
 C[i,j] := -w(i,j), and there is a triangle of weight zero if and only if, in some block, some C[i,j]
@@ -2946,7 +2946,7 @@ def Lemma_36a_min_plus_blocks : Prop :=
   (∀ p, IsMinPlusProduct (blockOfCols A p) (blockOfRows B p) (M p)) →
     (IsMinPlusProduct A B C ↔ ∀ i j, IsLeast (Set.range fun p => M p i j) (C i j))
 
-/-! Proof of Lemma 36(a): "APSP with real weights and no negative cycles can be computed by
+/- Proof of Lemma 36(a): "APSP with real weights and no negative cycles can be computed by
 successive squaring of the weight matrix, performing ⌈log₂ n⌉ such products." This is
 `Theorem_21b_repeated_squaring` (Theorem 21(b)), which is stated for weights in any linearly ordered
 commutative group, in particular for real weights. -/
@@ -2991,7 +2991,7 @@ def Lemma_36a_subtractions : Prop :=
           (∑ i, ((lists41 A' B' S k).row i).length + ∑ j, ((lists41 A' B' S k).col j).length)
         ≤ 2 * n * d ^ 2
 
-/-! #### Lemma 36(b): the parts argued in the paper -/
+/- #### Lemma 36(b): the parts argued in the paper -/
 
 /-- Proof of Lemma 36(b): "By Fredman's trick, the condition is A_i[k'] - A_i[k] < B_j[ℓ] -
 B_j[ℓ'].  So a call is one comparison count: the rows are the n pairs (i,k) and the columns are the
@@ -3023,7 +3023,7 @@ def Lemma_36b_subtractions : Prop :=
     ∑ r, ((lists45 A B K' L' χ₀).row r).length + ∑ c, ((lists45 A B K' L' χ₀).col c).length
       ≤ 2 * (b * d) * d
 
-/-! #### Lemma 37
+/- #### Lemma 37
 
 The lemma says "we can build matrices X [...] and Y [...] and compute integers γ₂(r,c), (r,c) ∈ P,
 with" γ(r,c) = (XY)[r,c] + γ₂(r,c). Read as a bare existence statement this would be trivial (take
@@ -3072,7 +3072,7 @@ def Lemma_37_enumerated : Prop :=
       (enumeratedPairs o s : ℚ) ≤ ((2 * n * d : ℚ) / s + d) * (s : ℚ) ^ 2 / 4 ∧
       ((2 * n * d : ℚ) / s + d) * (s : ℚ) ^ 2 / 4 ≤ (n * d * s + d * s ^ 2 : ℚ)
 
-/-! #### Corollary 38: correctness and parameter arithmetic -/
+/- #### Corollary 38: correctness and parameter arithmetic -/
 
 /-- Proof of Corollary 38: "Corollary 26 ... computes (XY)[r,c] for all (r,c) ∈ P
 deterministically in O(|P|(D*)^{0.437} + n²/(D*)^{0.063}) time" and "the time of Lemma 37 itself is
@@ -3117,7 +3117,7 @@ def Corollary_38_correct : Prop :=
             (padInnerRows (Dstar n d) (matY o (blockLen n d) idx))) r c
           + sameBlockCount o (blockLen n d) P r c
 
-/-! #### Proof of Theorem 35: the arithmetic, with d := ⌊n^{1/40}⌋ -/
+/- #### Proof of Theorem 35: the arithmetic, with d := ⌊n^{1/40}⌋ -/
 
 /-- Proof of Theorem 35: "Let d := ⌊n^{1/40}⌋, apply Lemma 36 with this d, and answer every
 comparison count by Corollary 38." This d satisfies the hypotheses 1 ≤ d ≤ n of Lemma 36 and d ≤
@@ -3205,7 +3205,7 @@ end PaperStatements
 
 end Sec5Statements
 
-/-!
+/-
 ## The word RAM: problems
 
 First comes what it means that a program of the machine of `EndStatement.lean` solves a problem
@@ -3271,7 +3271,7 @@ namespace ThreeSumApsp.WordRam
 
 open EndStatement (Instr exec loadWords)
 
-/-! ### What it means to solve a problem
+/- ### What it means to solve a problem
 
 **The order of the choices.**  In every statement the order is: the constants of the problem (the
 exponent `κ` of the magnitude of the numbers, the `k` of `k`-Clique); then the program, the slope
@@ -3279,7 +3279,7 @@ exponent `κ` of the magnitude of the numbers, the `k` of `k`-Clique); then the 
 any number of bits that is admissible for the slope.  So the program cannot depend on the instance
 or on its size, and it cannot rely on long words. -/
 
-/-! #### The word size and the output cells -/
+/- #### The word size and the output cells -/
 
 /-- The word size `W` is admissible against the slope `b` for an input with the parameters `params`
 (its sizes): `W` is at least `b · (⌊log₂ p₁⌋ + ⌊log₂ p₂⌋ + … + 1)`.  If every parameter is at most a
@@ -3295,7 +3295,7 @@ cells. -/
 def output {W : Nat} (c : Int → BitVec W) (len : Nat) (i : Nat) : Int :=
   (c ((len : Int) + (i : Int))).toInt
 
-/-! #### Problems, and solving a problem within a time bound -/
+/- #### Problems, and solving a problem within a time bound -/
 
 /-- A computational problem on the word RAM. -/
 structure Problem where
@@ -3321,7 +3321,7 @@ def Solves (prob : Problem) (P : List Instr) (b : ℕ) (dom : prob.Inst → Prop
       exec P t 0 (loadWords bits (prob.input x)) = some (verdict, c) ∧
       prob.IsAnswer x verdict (output c (prob.input x).length)
 
-/-! #### Time bounds in one size `n`, for the problems of `EndStatement.lean` -/
+/- #### Time bounds in one size `n`, for the problems of `EndStatement.lean` -/
 
 /-- The program `P` with slope `b` solves the problem `Q` within `T(n)` steps when all numbers are
 integers of absolute value at most `n^κ`.  This is what `EndStatement.Problem.SolvedInTime` asks of
@@ -3368,7 +3368,7 @@ def SolvedInLittleOTime (Q : EndStatement.Problem) (a : ℝ) : Prop :=
   ∀ κ : ℕ, ∃ (P : List Instr) (b : ℕ) (C : ℝ) (o : ℕ → ℝ), Filter.Tendsto o Filter.atTop (nhds 0) ∧
     SolvesWithin Q κ P b fun n => C * ((n : ℝ) ^ (a + o n) + 1)
 
-/-! #### A query program that serves one query after the other -/
+/- #### A query program that serves one query after the other -/
 
 /-- The memory on which a query starts: the memory `c`, left behind by the preprocessing or by the
 previous query, with the row `I` and the column `J` written into the two query cells `qI` and
@@ -3381,7 +3381,7 @@ memory `c`: each run starts at the first instruction, accepts within `tq` steps 
 entry in the cell `qOut`; the next query starts from the memory that this run leaves. -/
 export Lax350013.RAMResources (Serves)
 
-/-! #### Programs that receive their input in phases
+/- #### Programs that receive their input in phases
 
 A problem in phases has one program for each phase.  The inputs of the phases are laid
 out one after the other in the cells 0, 1, 2, …, but the input of a phase is written into its cells
@@ -3414,7 +3414,7 @@ export Lax350013.RAMResources (RunsPhases)
 `a ≥ 0` the `+ 1` only changes the constant; for `a < 0` the bound means `O(1)`. -/
 def Within (s : ℕ) (C : ℝ) (n : ℕ) (a : ℝ) : Prop := (s : ℝ) ≤ C * ((n : ℝ) ^ a + 1)
 
-/-! ### The problems of the paper, their inputs and their answers
+/- ### The problems of the paper, their inputs and their answers
 
 **Layout.**  Matrices are written row by row, one number per cell, as signed words.  Booleans are
 written as 0 and 1, and indices and vertices count from 0.  The first cells hold the sizes.  The
@@ -3425,7 +3425,7 @@ a fixed power of the size, with an exponent that is fixed before the program (an
 matrices of the lopsided triangle problems).  A program for a problem with an output has to accept,
 and to leave the output in the cells right after the input. -/
 
-/-! #### How matrices and Booleans are written -/
+/- #### How matrices and Booleans are written -/
 
 /-- A matrix written row by row. -/
 def rowMajor {n m : ℕ} (A : Fin n → Fin m → ℤ) : List ℤ :=
@@ -3434,7 +3434,7 @@ def rowMajor {n m : ℕ} (A : Fin n → Fin m → ℤ) : List ℤ :=
 /-- A Boolean as a number. -/
 def bit (p : Bool) : ℤ := if p then 1 else 0
 
-/-! #### The wanted entries of a thin matrix product (Theorems 1, 5, 25 and 30, Corollaries 26 and
+/- #### The wanted entries of a thin matrix product (Theorems 1, 5, 25 and 30, Corollaries 26 and
 32) -/
 
 /-- Two matrices `X ∈ ℤ^{N×D}` and `Y ∈ ℤ^{D×N}` with entries of absolute value at most `U`. -/
@@ -3462,7 +3462,7 @@ def thinProduct (extra : List ℤ) : Problem where
   IsAnswer x verdict out :=
     verdict = true ∧ ∀ (i : ℕ) (h : i < x.W.length), out i = (x.X * x.Y) x.W[i].1 x.W[i].2
 
-/-! #### The two-stage data structure for a thin matrix product (Section 4) -/
+/- #### The two-stage data structure for a thin matrix product (Section 4) -/
 
 /-- The input of the preprocessing: `N`, `D`, further parameters `extra` (none, except in
 Theorem 30), then `X`, then `Y`.  The list `extra` is fixed before the instance. -/
@@ -3499,7 +3499,7 @@ def IsDataStructure (P Q : List Instr) (qI qJ qOut : ℤ) (b : ℕ) (extra : Lis
         Serves Q qI qJ qOut tq
           (fun I J => if h : I < x.N ∧ J < x.N then (x.X * x.Y) ⟨I, h.1⟩ ⟨J, h.2⟩ else 0) c queries
 
-/-! #### The lopsided triangle problems (Definitions 13 and 14) -/
+/- #### The lopsided triangle problems (Definitions 13 and 14) -/
 
 /-- The entries of both matrices are 0 or 1: the two biadjacency matrices of an instance of
 Lop-AE-SparseTri(N, D) (Section 3.1). -/
@@ -3536,12 +3536,12 @@ def lopDetect : Problem where
       (x.lop.InTriangle x.W[i].1 x.W[i].2 → out i = 1) ∧
         (¬ x.lop.InTriangle x.W[i].1 x.W[i].2 → out i = 0)
 
-/-! #### Exact Triangle, 3SUM, the (min,+)-product and APSP
+/- #### Exact Triangle, 3SUM, the (min,+)-product and APSP
 
 These four are the problems `ExactTriangle`, `ThreeSum`, `MinPlusProduct` and `APSP` of
 `EndStatement.lean`. -/
 
-/-! #### Exact Triangle on `n`-vertex graphs -/
+/- #### Exact Triangle on `n`-vertex graphs -/
 
 /-- A graph on `n` vertices with integer edge weights: an instance of Exact Triangle "on an
 arbitrary n-vertex graph" (Section 3.2); Theorem 2 has "Exact Triangle on n-vertex graphs". -/
@@ -3564,7 +3564,7 @@ noncomputable def GraphExactTriangle : EndStatement.Problem where
     rowMajor (fun u v => if x.G.Adj u v then x.w u v else 0)
   yes x := GraphHasZeroTriangle x.G x.w
 
-/-! #### Zero-Weight, Min-Weight and Max-Weight `k`-Clique (Corollary 39)
+/- #### Zero-Weight, Min-Weight and Max-Weight `k`-Clique (Corollary 39)
 
 Zero-Weight `k`-Clique is the problem `ZeroWeightKClique k` of `EndStatement.lean`.  The other two
 have its input: for each ordered pair of parts `(p, q)`, in row-major order, an `n × n` block of
@@ -3596,7 +3596,7 @@ def MaxKClique (k : ℕ) : EndStatement.Problem where
   output {n} w out := ∃ v : Fin k → Fin n, (∀ p : Fin k, out p.val = ((v p).val : ℤ)) ∧
     ∀ v', cliqueWeight w.1 v' ≤ cliqueWeight w.1 v
 
-/-! #### The three hinted matrix-vector problems of [vdBNS19] (Corollary 40) -/
+/- #### The three hinted matrix-vector problems of [vdBNS19] (Corollary 40) -/
 
 /-- Section 5.4: the hint dimension "t = n^τ".
 
@@ -3659,7 +3659,7 @@ end ThreeSumApsp.WordRam
 
 end WordRamProblems
 
-/-!
+/-
 ## Agreement with the definitions of EndStatement.lean
 
 Eight notions have two definitions each.  `EndStatement.lean` defines them for the five claims, with
@@ -3760,7 +3760,7 @@ end PaperStatements
 
 end AgreementStatements
 
-/-!
+/-
 ## The word RAM: running times
 
 An item statement is a running-time sentence of the paper, written as a proposition about programs
@@ -3807,7 +3807,7 @@ open EndStatement (Instr)
 
 namespace Items
 
-/-! ### Section 2: Theorem 5 -/
+/- ### Section 2: Theorem 5 -/
 
 /-- **Theorem 5**: "Let D ≥ 4 be a power of four and N ≥ D^18.  Given as input matrices X ∈
 ℤ^{N×D} and Y ∈ ℤ^{D×N}, whose entries are integers of absolute value at most N^{O(1)}, as well as a
@@ -3823,7 +3823,7 @@ def Theorem_5 : Prop :=
         (x.W.length : ℝ) ≤ (x.N : ℝ) ^ 2 / Real.sqrt x.D ∧ x.U = x.N ^ c)
       (fun x => C * ((x.N : ℝ) ^ 2 * Real.log x.D ^ 2 / (x.D : ℝ) ^ (1 / 18 : ℝ)))
 
-/-! ### Section 3: Corollaries 15 and 16, Theorems 19 and 22 -/
+/- ### Section 3: Corollaries 15 and 16, Theorems 19 and 22 -/
 
 /-- **Corollary 15**: "Let D ≥ 4 be a power of four with n ≥ D^18, and consider an instance
 of #Lop-AE-SparseTri(n,D) or of Lop-AE-SparseTri(n,D) with |W| query pairs.  If |W| ≤ n²/√D, then
@@ -3900,7 +3900,7 @@ def Theorem_22_threeSum : Prop :=
   SolvedInLittleOTime EndStatement.ThreeSum (2 - 1 / 1296) ∧
   SolvedInLittleOTime EndStatement.ThreeSum (2 - 0.00175 / 2)
 
-/-! ### Section 4: Theorems 24 and 25, Corollary 26, Theorem 30, Corollaries 31 and 32 -/
+/- ### Section 4: Theorems 24 and 25, Corollary 26, Theorem 30, Corollaries 31 and 32 -/
 
 /-- The hypotheses on the input in Corollaries 31 and 32 and Theorems 24 and 25: "where 2 ≤ D ≤
 N^ε", with entries "of absolute value at most N^{O(1)}".  `lo` is the lower bound on `D`, which is 2
@@ -4037,7 +4037,7 @@ def WantedBelow (ε₀ : ℝ) : Prop :=
         (fun x => thinDom 1 ε c₀ x.toThinPair ∧ (x.W.length : ℝ) ≤ (x.N : ℝ) ^ 2 / (x.D : ℝ) ^ κ)
         (fun x => C * ((x.N : ℝ) ^ 2 / (x.D : ℝ) ^ γ))
 
-/-! ### Section 5: Corollaries 39 and 40 -/
+/- ### Section 5: Corollaries 39 and 40 -/
 
 /-- **Corollary 39**, the case of Zero-Weight k-Clique.  The paper: "Let k ≥ 3 and ν ≥ 1 be
 constants.  Given a complete k-partite graph with parts of n vertices and integer edge weights of
@@ -4105,7 +4105,7 @@ def Corollary_40_fail (τ₀ : ℝ) : Prop :=
   ∀ τ₁ τ₂ ω₂ ω₃ : ℝ, 0 < τ₁ → τ₁ < τ₀ * τ₂ → τ₂ < 1 → 2 ≤ ω₂ → 1 + τ₂ ≤ ω₃ →
     ¬ HintedMv.Conjecture512 (AchievesUMvHinted τ₁ τ₂) ω₂ ω₃ τ₁ τ₂
 
-/-! ### Section 1, the introduction: Theorems 1 to 4 -/
+/- ### Section 1, the introduction: Theorems 1 to 4 -/
 
 /-- **Theorem 1**: "Let N ≥ D^18, let X ∈ ℤ^{N×D} and Y ∈ ℤ^{D×N} have entries of absolute
 value N^{O(1)}, and let W be any set of |W| ≤ N²/√D positions.  The entries (XY)[I,J], (I,J) ∈ W,
